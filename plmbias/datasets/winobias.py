@@ -2,6 +2,17 @@ from datasets import load_dataset, interleave_datasets, DatasetDict
 from torch.utils.data import DataLoader
 from transformers import DataCollatorWithPadding
 
+from plmbias.datasets import StereotypeDataset
+
+
+class Winobias(StereotypeDataset):
+
+    def process(self):
+        data = load_winobias()
+
+        self.train_split = process_winobias_split(data["train"], self.tokenizer)
+        self.eval_split = process_winobias_split(data["eval"], self.tokenizer)
+
 
 def load_winobias():
     result = {
@@ -50,19 +61,3 @@ def process_winobias_split(dataset, tokenizer):
     tokenized_dataset = detokenized_dataset.map(tokenize_function, batched=True, batch_size=32)
     tokenized_dataset = tokenized_dataset.remove_columns(['document_id', 'part_number', 'word_number', 'tokens', 'pos_tags', 'parse_bit', 'predicate_lemma', 'predicate_framenet_id', 'word_sense', 'speaker', 'ner_tags', 'verbal_predicates', 'coreference_clusters', 'sentence'])
     return tokenized_dataset
-
-
-def process_winobias(tokenizer):
-    data = load_winobias()
-    return DatasetDict({
-        "train": process_winobias_split(data["train"], tokenizer),
-        "eval": process_winobias_split(data["eval"], tokenizer)
-    })
-
-
-def load_processed_winobias(tokenizer):
-    dataset = load_dataset(f"henryscheible/winobias")
-    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-    train_dataloader = DataLoader(dataset["train"], shuffle=True, batch_size=8, collate_fn=data_collator)
-    eval_dataloader = DataLoader(dataset["eval"], batch_size=8, collate_fn=data_collator)
-    return train_dataloader, eval_dataloader

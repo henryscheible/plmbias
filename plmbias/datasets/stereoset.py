@@ -6,7 +6,7 @@ from plmbias.datasets import StereotypeDataset
 
 class Stereoset(StereotypeDataset):
 
-    def _process_stereoset(self):
+    def process(self):
 
         def process_fn(example):
             sentences = []
@@ -48,12 +48,3 @@ class Stereoset(StereotypeDataset):
         self.train_split = split_tokenized_dataset["train"]
         self.eval_split = split_tokenized_dataset["test"]
 
-    def get_train_split(self):
-        if self.train_split is None:
-            self._process_stereoset()
-        return self.train_split
-
-    def get_eval_split(self):
-        if self.eval_split is None:
-            self._process_stereoset()
-        return self.eval_split
