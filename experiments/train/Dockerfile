@@ -1,0 +1,9 @@
+FROM plmbias
+ARG MODEL
+ARG TRAIN_TYPE
+ARG DATASET
+ENV MODEL=$MODEL
+ENV TRAIN_TYPE=$TRAIN_TYPE
+ENV DATASET=$DATASET
+COPY ./train.py /workspace
+CMD ["python3", "/workspace/train.py"]

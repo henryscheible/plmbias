@@ -8,7 +8,7 @@ import evaluate
 from plmbias.datasets import StereotypeDataset
 
 
-class Crowspairs(StereotypeDataset):
+class CrowsPairs(StereotypeDataset):
     def process(self):
         dataset = load_dataset("crows_pairs")['test']
 
