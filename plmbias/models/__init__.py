@@ -15,7 +15,7 @@ model_classes = {
 
 
 def from_pretrained(hf_model_id: str):
-    return model_classes[hf_model_id](hf_model_id)
+    return SequenceClassificationEnvironment(hf_model_id)
 
 
 ModelEnvironment.from_pretrained = from_pretrained

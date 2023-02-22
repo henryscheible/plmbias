@@ -17,13 +17,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ENV PATH=$CONDA_DIR/bin:$PATH
 RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
 RUN python -m pip install "transformers[sentencepiece]" sklearn datasets evaluate captum dropbox
-RUN \
-  apt-get update && \
-  apt-get install -y git
+RUN apt-get update
+RUN apt-get install -y git
 RUN apt-get install git-lfs
 ARG TOKEN
 RUN python3 -c "from huggingface_hub import HfFolder; HfFolder.save_token('$TOKEN')"
 RUN python -c 'from huggingface_hub import whoami; print(whoami())'
-RUN pip install sklearn
+RUN pip install scikit-learn
 COPY ./plmbias /workspace/plmbias
 CMD ["bash"]

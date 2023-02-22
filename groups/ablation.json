@@ -1,0 +1,18 @@
+{
+  "contexts": {
+    "dsail2": "ssh://henry@dsail2.cs.dartmouth.edu",
+    "mms-large-2": "ssh://henry@mms-large-2.cs.dartmouth.edu"
+  },
+  "experiments": [
+    {
+      "name": "xlnet-base-cased_stereoset_finetuned_ablation",
+      "image": "ablation",
+      "context": "mms-large-2",
+      "card": 0,
+      "buildargs": {
+        "CHECKPOINT": "henryscheible/xlnet-base-cased_stereoset_finetuned",
+        "DATASET": "stereoset"
+      }
+    }
+  ]
+}

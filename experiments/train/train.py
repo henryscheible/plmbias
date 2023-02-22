@@ -18,6 +18,7 @@ model_env = ModelEnvironment.from_pretrained(hf_model_id)
 dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
 
+
 def compute_metrics(eval_preds):
     metric = evaluate.load("accuracy")
     logits, labels = eval_preds
@@ -32,27 +33,32 @@ if train_type == "classifieronly":
 training_args = TrainingArguments(
     name,
     evaluation_strategy="steps",
-    eval_steps=10,
+    eval_steps=5,
     save_strategy="steps",
-    save_steps=10,
-    per_device_train_batch_size=64,
+    save_steps=5,
+    per_device_train_batch_size=128,
     per_device_eval_batch_size=64,
-    num_train_epochs=6,
-    log_level="info",
+    num_train_epochs=30,
+    log_level="debug",
     load_best_model_at_end=True,
-    metric_for_best_model="accuracy"
+    metric_for_best_model="accuracy",
+    push_to_hub=True,
+    learning_rate=1e-5
 )
 
 print(training_args.device)
-#
-# trainer = Trainer(
-#     model_env.get_model(),
-#     training_args,
-#     train_dataset=dataset.get_train_split(),
-#     eval_dataset=dataset.get_eval_split(),
-#     data_collator=data_collator,
-#     tokenizer=model_env.get_tokenizer(),
-#     compute_metrics=compute_metrics
-# )
 
-# trainer.train()
+trainer = Trainer(
+    model_env.get_model(),
+    training_args,
+    train_dataset=dataset.get_train_split(),
+    eval_dataset=dataset.get_eval_split(),
+    data_collator=data_collator,
+    tokenizer=model_env.get_tokenizer(),
+    compute_metrics=compute_metrics
+)
+
+trainer.train()
+print("pushing to hub")
+trainer.push_to_hub()
+print("done pushing to hub")
