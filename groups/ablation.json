@@ -5,12 +5,12 @@
   },
   "experiments": [
     {
-      "name": "xlnet-base-cased_stereoset_finetuned_ablation",
+      "name": "bert-large-uncased_stereoset_finetuned_ablation",
       "image": "ablation",
       "context": "mms-large-2",
       "card": 0,
       "buildargs": {
-        "CHECKPOINT": "henryscheible/xlnet-base-cased_stereoset_finetuned",
+        "CHECKPOINT": "henryscheible/bert-large-uncased_stereoset_finetuned",
         "DATASET": "stereoset"
       }
     }
