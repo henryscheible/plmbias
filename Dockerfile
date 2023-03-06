@@ -20,9 +20,6 @@ RUN python -m pip install "transformers[sentencepiece]" sklearn datasets evaluat
 RUN apt-get update
 RUN apt-get install -y git
 RUN apt-get install git-lfs
-ARG TOKEN
-RUN python3 -c "from huggingface_hub import HfFolder; HfFolder.save_token('$TOKEN')"
-RUN python -c 'from huggingface_hub import whoami; print(whoami())'
 RUN pip install scikit-learn
 COPY ./plmbias /workspace/plmbias
 CMD ["bash"]
