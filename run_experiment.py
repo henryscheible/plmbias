@@ -11,6 +11,7 @@ def get_docker_contexts(contexts):
 
 def launch_experiments(experiments, context_urls):
     token = os.environ.get("HF_TOKEN")
+    wandb_token = os.environ.get("WANBD_TOKEN")
     contexts = get_docker_contexts(context_urls)
     for experiment in experiments:
         client = contexts[experiment["context"]]
@@ -18,6 +19,7 @@ def launch_experiments(experiments, context_urls):
             buildargs = {k: str(v) for k, v in experiment["buildargs"].items()}
             buildargs["GPU_CARD"] = str(experiment["card"])
             buildargs["TOKEN"] = token
+            buildargs["WANDB_TOKEN"] = wandb_token
             print("Building image...")
             print(f"Image path: ./experiments/{experiment['image']}")
             image, _ = client.images.build(
@@ -43,6 +45,7 @@ def launch_experiments(experiments, context_urls):
 
 def build_images(images, context_urls):
     token = os.environ.get("HF_TOKEN")
+    wandb_token = os.environ.get("WANBD_TOKEN")
     contexts = get_docker_contexts(context_urls)
     for image in images:
         for key, client in contexts.items():
@@ -56,11 +59,12 @@ def build_images(images, context_urls):
 
 def monitor_experiments(experiments, context_urls):
     contexts = get_docker_contexts(context_urls)
+    print(f"\033[94m \033[1m{'Name':<50} \033[0m{'Machine':<12}  {'Card':<5} {'Status':<10} | {'Logs'}")
     for experiment in experiments:
         client = contexts[experiment["context"]]
         try:
             container = client.containers.get(experiment["name"])
-            print(f"\033[94m \033[1m{experiment['name']:<20} \033[0m{experiment['context']:<12}  {container.status:<10} | {str(container.logs(tail=1))[:100]}")
+            print(f"\033[94m \033[1m{experiment['name']:<50} \033[0m{experiment['context']:<12}  {experiment['card']:<5} {container.status:<10} | {str(container.logs(tail=1))[:100]}")
         except docker.errors.NotFound:
             print(f"Container \"{experiment['name']}\" does not exist")
 

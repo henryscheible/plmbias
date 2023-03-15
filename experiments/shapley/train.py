@@ -58,9 +58,9 @@ model_env = ModelEnvironment.from_pretrained(checkpoint)
 
 dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
-eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=512, collate_fn=data_collator)
+eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=1024, collate_fn=data_collator)
 print("")
-get_shapley(eval_dataloader, model_env, num_samples=100)
+get_shapley(eval_dataloader, model_env, num_samples=250)
 
 api = HfApi()
 api.upload_file(

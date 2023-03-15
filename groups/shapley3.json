@@ -1,0 +1,38 @@
+{
+  "contexts": {
+    "dsail2": "ssh://henry@dsail2.cs.dartmouth.edu",
+    "mms-large-1": "ssh://henry@mms-large-1.cs.dartmouth.edu"
+  },
+  "experiments": [
+    {
+      "name": "gpt2_winobias_finetuned_shapley",
+      "image": "shapley",
+      "context": "mms-large-1",
+      "card": 0,
+      "buildargs": {
+        "CHECKPOINT": "henryscheible/gpt2_winobias_finetuned",
+        "DATASET": "winobias"
+      }
+    },
+    {
+      "name": "gpt2_crows_pairs_finetuned_shapley",
+      "image": "shapley",
+      "context": "mms-large-1",
+      "card": 1,
+      "buildargs": {
+        "CHECKPOINT": "henryscheible/gpt2_crows_pairs_finetuned",
+        "DATASET": "crows_pairs"
+      }
+    },
+    {
+      "name": "xlnet-base-cased_winobias_finetuned_shapley",
+      "image": "shapley",
+      "context": "mms-large-1",
+      "card": 2,
+      "buildargs": {
+        "CHECKPOINT": "henryscheible/xlnet-base-cased_winobias_finetuned",
+        "DATASET": "winobias"
+      }
+    }
+  ]
+}

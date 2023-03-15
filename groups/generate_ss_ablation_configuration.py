@@ -48,43 +48,61 @@ gpu_cards = [
     # ("mms-large-2", 7),
 ]
 
-learning_rates = [
-    5e-5, 1e-4, 5e-4, 1e-3, 5e-3
-]
-
 config = dict()
 config["contexts"] = contexts
 config["experiments"] = []
 
 
-def not_already_trained(checkpoint):
-    model, dataset, training_type, _ = checkpoint
+def has_already_trained(checkpoint):
+    model, dataset, training_type = checkpoint
     try:
         validation = requests.get(f"https://huggingface.co/henryscheible/{model}_{dataset}_{training_type}/raw/main/README.md").text
         val_lines = validation.split("\n")
         acc_line = list(filter(lambda l: "Accuracy:" in l, val_lines))[0]
         acc = acc_line[12:]
-        return float(acc) < 0.7
+        return float(acc) > 0.7
     except:
-        return True
+        return False
 
 
-configs = product(models, datasets, training_types, learning_rates)
-required_configs = filter(not_already_trained, configs)
+def has_already_probed(checkpoint):
+    model, dataset, training_type = checkpoint
+    try:
+        probing = requests.get(f"https://huggingface.co/henryscheible/{model}_{dataset}_{training_type}/blob/main/contribs.txt").text
+        if "Entry not found" not in probing:
+            return True
+    except:
+        return False
 
-for (model, dataset, training_type, lr), (context, card) in zip(required_configs, cycle(gpu_cards)):
+
+def has_already_ablated(checkpoint):
+    model, dataset, training_type = checkpoint
+    try:
+        ablation = requests.get(f"https://huggingface.co/henryscheible/{model}_{dataset}_{training_type}/blob/main/ss_ablation_results.json").text
+        if "Entry not found" not in ablation:
+            return True
+    except:
+        return False
+
+
+def needs_ablating(checkpoint):
+    return has_already_trained(checkpoint) and has_already_probed(checkpoint) and not has_already_ablated(checkpoint)
+
+
+configs = product(models, datasets, training_types)
+required_configs = filter(needs_ablating, configs)
+
+for (model, dataset, training_type), (context, card) in zip(required_configs, cycle(gpu_cards)):
     config["experiments"].append({
-      "name": f"{model}_{dataset}_{training_type}_{lr}",
-      "image": "train",
+      "name": f"{model}_{dataset}_{training_type}_ss_ablation",
+      "image": "ss_ablation",
       "context": context,
       "card": card,
       "buildargs": {
-        "MODEL": model,
-        "DATASET": dataset,
-        "TRAIN_TYPE": training_type,
-        "LR": 5e-5
+        "CHECKPOINT": f"henryscheible/{model}_{dataset}_{training_type}",
+        "DATASET": dataset
       }
     })
 
-with open("training_lr_sweep.json", "w") as f:
+with open("ss_ablation.json", "w") as f:
     f.write(json.dumps(config))

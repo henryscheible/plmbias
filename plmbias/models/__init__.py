@@ -1,4 +1,5 @@
 from .base import ModelEnvironment
+from .causal import CausalLMEnvironment
 from .classifier import SequenceClassificationEnvironment
 
 model_classes = {
@@ -17,5 +18,9 @@ model_classes = {
 def from_pretrained(hf_model_id: str):
     return SequenceClassificationEnvironment(hf_model_id)
 
+def from_pretrained_lm(hf_model_id: str):
+    return CausalLMEnvironment(hf_model_id)
+
 
 ModelEnvironment.from_pretrained = from_pretrained
+ModelEnvironment.from_pretrained_lm = from_pretrained_lm

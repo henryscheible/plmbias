@@ -1,3 +1,5 @@
+from torch import nn
+
 from plmbias.models.base import ModelEnvironment
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -52,6 +54,8 @@ class SequenceClassificationEnvironment(ModelEnvironment):
         if "gpt" in hf_model_id:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.model.config.pad_token_id = self.tokenizer.eos_token_id
+        #     self.model.score = nn.Linear(self.model.score.in_features, self.model.score.out_features, bias=True)
+        #     self.model.post_init()
 
     def get_classifieronly_params(self):
         return model_to_params[self.model_id]

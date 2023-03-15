@@ -49,4 +49,4 @@ class CrowsPairs(StereotypeDataset):
             test_size=0.2
         )
         self.train_split = split_tokenized_dataset["train"]
-        self.eval_split = split_tokenized_dataset["eval"]
+        self.eval_split = split_tokenized_dataset["test"]

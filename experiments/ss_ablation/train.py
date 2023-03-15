@@ -80,8 +80,8 @@ def get_top_down_masks_rev(contribs):
 
 
 def get_ss(calc, model_env, mask=None):
-    model_env.eval()
     model = model_env.get_model()
+    model.eval()
     model = model.to("cuda" if torch.cuda.is_available() else "cpu")
     if mask is not None:
         calc.set_intrasentence_mask(mask)
@@ -91,8 +91,8 @@ def get_ss(calc, model_env, mask=None):
 
 def test_shapley(checkpoint):
     print(f"=======CHECKPOINT: {checkpoint}==========")
-    model_env = ModelEnvironment.from_pretrained(checkpoint)
-    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+    model_env = ModelEnvironment.from_pretrained_lm(checkpoint)
+    tokenizer = model_env.get_tokenizer()
     tokenizer.mask_token = "[MASK]"
     tokenizer.sep_token = "[SEP]"
     tokenizer.cls_token = "[CLS]"

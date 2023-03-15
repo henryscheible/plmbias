@@ -20,6 +20,8 @@ RUN python -m pip install "transformers[sentencepiece]" scikit-learn datasets ev
 RUN apt-get update
 RUN apt-get install -y git
 RUN apt-get install git-lfs
-RUN pip install scikit-learn
+RUN pip install scikit-learn wandb
+ARG WANDB_TOKEN
+RUN wandb login $WANDB_TOKEN
 COPY ./plmbias /workspace/plmbias
 CMD ["bash"]
