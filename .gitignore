@@ -2,3 +2,4 @@ __pycache__/
 */__pycache__/
 *.pdf
 results_bin/
+visualizations/results/
