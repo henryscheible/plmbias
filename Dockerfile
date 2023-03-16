@@ -21,7 +21,8 @@ RUN apt-get update
 RUN apt-get install -y git
 RUN apt-get install git-lfs
 RUN pip install scikit-learn wandb
-ARG WANDB_TOKEN
-RUN wandb login $WANDB_TOKEN
+#ARG WANDB_TOKEN
+#RUN wandb login $WANDB_TOKEN
+ENV WANDB_MODE=dryrun
 COPY ./plmbias /workspace/plmbias
 CMD ["bash"]

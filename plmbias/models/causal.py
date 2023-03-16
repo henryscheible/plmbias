@@ -9,7 +9,12 @@ class CausalLMEnvironment(ModelEnvironment):
         super().__init__()
         self.model_id = hf_model_id
         self.model = AutoModelForCausalLM.from_pretrained(hf_model_id)
-        self.tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
+        if "gpt2" in hf_model_id:
+            self.tokenizer = AutoTokenizer.from_pretrained(hf_model_id, mask_token="<|endoftext|>")
+        if "bert" in hf_model_id:
+            self.tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
+        if "xlnet" in hf_model_id:
+            self.tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
         if "gpt" in hf_model_id:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.model.config.pad_token_id = self.tokenizer.eos_token_id

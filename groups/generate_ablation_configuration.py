@@ -94,7 +94,7 @@ required_configs = filter(needs_ablating, configs)
 
 for (model, dataset, training_type), (context, card) in zip(required_configs, cycle(gpu_cards)):
     config["experiments"].append({
-      "name": f"{model}_{dataset}_{training_type}_ablatioj",
+      "name": f"{model}_{dataset}_{training_type}_ablation",
       "image": "ablation",
       "context": context,
       "card": card,
@@ -104,5 +104,5 @@ for (model, dataset, training_type), (context, card) in zip(required_configs, cy
       }
     })
 
-with open("ablation3.json", "w") as f:
+with open("ablation4.json", "w") as f:
     f.write(json.dumps(config))

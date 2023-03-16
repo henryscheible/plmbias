@@ -26,6 +26,11 @@ training_types = [
     "finetuned"
 ]
 
+training_types = [
+    # "classifieronly",
+    "finetuned"
+]
+
 gpu_cards = [
     ("mms-large-1", 0),
     # ("mms-large-2", 0),
@@ -42,12 +47,11 @@ gpu_cards = [
     # ("mms-large-2", 4),
     ("mms-large-1", 5),
     # ("mms-large-2", 5),
-    ("mms-large-1", 6),
+    # ("mms-large-1", 6),
     # ("mms-large-2", 6),
-    ("mms-large-1", 7),
+    # ("mms-large-1", 7),
     # ("mms-large-2", 7),
 ]
-
 config = dict()
 config["contexts"] = contexts
 config["experiments"] = []
@@ -86,7 +90,7 @@ def has_already_ablated(checkpoint):
 
 
 def needs_ablating(checkpoint):
-    return has_already_trained(checkpoint) and has_already_probed(checkpoint) and not has_already_ablated(checkpoint)
+    return has_already_trained(checkpoint) and has_already_probed(checkpoint) #and not has_already_ablated(checkpoint)
 
 
 configs = product(models, datasets, training_types)
@@ -94,7 +98,7 @@ required_configs = filter(needs_ablating, configs)
 
 for (model, dataset, training_type), (context, card) in zip(required_configs, cycle(gpu_cards)):
     config["experiments"].append({
-      "name": f"{model}_{dataset}_{training_type}_ss_ablation",
+      "name": f"{model}_{dataset}_{training_type}_ss_ablation_v2",
       "image": "ss_ablation",
       "context": context,
       "card": card,
@@ -104,5 +108,5 @@ for (model, dataset, training_type), (context, card) in zip(required_configs, cy
       }
     })
 
-with open("ss_ablation.json", "w") as f:
+with open("ss_ablation3.json", "w") as f:
     f.write(json.dumps(config))
