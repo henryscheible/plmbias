@@ -1,6 +1,7 @@
 from .base import ModelEnvironment
 from .causal import CausalLMEnvironment
 from .classifier import SequenceClassificationEnvironment
+from .generative import GenerativeEnvironment
 
 model_classes = {
     "bert-base-uncased": SequenceClassificationEnvironment,
@@ -21,6 +22,10 @@ def from_pretrained(hf_model_id: str):
 def from_pretrained_lm(hf_model_id: str):
     return CausalLMEnvironment(hf_model_id)
 
+def from_pretrained_generative(hf_model_id: str):
+    return GenerativeEnvironment(hf_model_id)
+
 
 ModelEnvironment.from_pretrained = from_pretrained
 ModelEnvironment.from_pretrained_lm = from_pretrained_lm
+ModelEnvironment.from_pretrained_generative = from_pretrained_generative

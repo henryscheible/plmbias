@@ -10,8 +10,8 @@ name_to_subclass = {
 }
 
 
-def from_name(name, tokenizer):
-    return name_to_subclass[name](tokenizer)
+def from_name(name, tokenizer, is_generative=False):
+    return name_to_subclass[name](tokenizer, is_generative)
 
 
 StereotypeDataset.from_name = from_name

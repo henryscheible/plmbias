@@ -1,7 +1,4 @@
-FROM plmbias
-ARG TOKEN
-RUN python3 -c "from huggingface_hub import HfFolder; HfFolder.save_token('$TOKEN')"
-RUN python -c 'from huggingface_hub import whoami; print(whoami())'
+FROM henryscheible/plmbias:latest
 ARG CHECKPOINT
 ARG DATASET
 ARG GPU_CARD

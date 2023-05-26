@@ -21,8 +21,11 @@ RUN apt-get update
 RUN apt-get install -y git
 RUN apt-get install git-lfs
 RUN pip install scikit-learn wandb
-#ARG WANDB_TOKEN
-#RUN wandb login $WANDB_TOKEN
+ARG WANDB_TOKEN
+RUN wandb login $WANDB_TOKEN
 ENV WANDB_MODE=dryrun
+ARG HF_TOKEN
+RUN python3 -c "from huggingface_hub import HfFolder; HfFolder.save_token('$HF_TOKEN')"
+RUN python -c 'from huggingface_hub import whoami; print(whoami())'
 COPY ./plmbias /workspace/plmbias
 CMD ["bash"]

@@ -43,7 +43,18 @@ def attribute_factory(model, eval_dataloader, shape):
         accuracies = []
         for eval_batch in eval_dataloader:
             eval_batch = {k: v.to(device) for k, v in eval_batch.items()}
-            model_env.evaluate_batch(eval_batch, mask, metric)
+            with torch.no_grad():
+                if model_is_generative:
+                    outputs = model(**eval_batch, head_mask=mask[:shape[0] * shape[1]].reshape(shape), decoder_head_mask=mask[shape[0] * shape[1]:].reshape(shape))
+                else:
+                    outputs = model(**eval_batch, head_mask=mask.reshape(shape))
+            logits = outputs.logits
+            labels = eval_batch["labels"]
+            if model_is_generative:
+                accuracies += [compute_metrics_generative(logits.detach().cpu().numpy(), labels.detach().cpu().numpy())]
+            else:
+                predictions = torch.argmax(logits, dim=-1)
+                metric.add_batch(predictions=predictions, references=eval_batch["labels"])
         if model_is_generative:
             return np.mean(accuracies)
         else:
@@ -87,20 +98,20 @@ artifact_name = f"{checkpoint}:latest"
 artifact = run.use_artifact(artifact_name)
 model_dir = artifact.download()
 
-if "t5" in artifact_name:
-    model_is_generative = True
-    model_env = ModelEnvironment.from_pretrained_generative(model_dir)
-    dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
-    model_env.setup_dataset(dataset)
-else:
-    model_is_generative = False
-    model_env = ModelEnvironment.from_pretrained(model_dir)
-    dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
-
-data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
-eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
-print("")
-get_shapley(eval_dataloader, model_env, num_samples=250)
+# if "t5" in artifact_name:
+#     model_is_generative = True
+#     model_env = ModelEnvironment.from_pretrained_generative(model_dir)
+#     dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
+#     model_env.setup_dataset(dataset)
+# else:
+#     model_is_generative = False
+#     model_env = ModelEnvironment.from_pretrained(model_dir)
+#     dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
+#
+# data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
+# eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
+# print("")
+# get_shapley(eval_dataloader, model_env, num_samples=250)
 
 contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
 contribs_artifact.add_file(local_path="contribs.txt")

@@ -1,7 +1,4 @@
-FROM plmbias
-ARG TOKEN
-RUN python3 -c "from huggingface_hub import HfFolder; HfFolder.save_token('$TOKEN')"
-RUN python -c 'from huggingface_hub import whoami; print(whoami())'
+FROM henryscheible/plmbiassha256:70da859d251ee86dc9595e9a2ce08c7fb66e5b16c0f106c7a878087594a8ccd9
 ARG CHECKPOINT
 ARG DATASET
 ARG GPU_CARD

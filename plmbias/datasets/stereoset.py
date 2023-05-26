@@ -1,6 +1,4 @@
-from datasets import load_dataset, DatasetDict
-from torch.utils.data import DataLoader
-from transformers import DataCollatorWithPadding
+from datasets import load_dataset
 from plmbias.datasets import StereotypeDataset
 
 
@@ -29,7 +27,6 @@ class Stereoset(StereotypeDataset):
         def tokenize(example):
             return self.tokenizer(example["context"], example["sentence"], truncation=True, padding=True)
 
-        num_samples = len(dataset["id"])
         dataset = dataset.remove_columns([
             "id",
             "target",

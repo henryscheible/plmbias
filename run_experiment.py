@@ -39,7 +39,7 @@ def launch_experiments(experiments, context_urls):
                 tag=experiment["name"]
             )
         print("Launching container...")
-        os.system(f"docker context use {experiment['context']} && docker run -itd --gpus all --name {experiment['name']} {experiment['name']} ")
+        os.system(f"docker context use {experiment['context']} && docker run -e WANDB_DOCKER={experiment['name']} -itd --gpus all --name {experiment['name']} {experiment['name']}")
         print(f"Started Experiment: {experiment['name']}")
 
 

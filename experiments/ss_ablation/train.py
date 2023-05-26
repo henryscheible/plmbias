@@ -91,7 +91,7 @@ def get_ss(calc, model_env, mask=None):
 
 def test_shapley(checkpoint):
     print(f"=======CHECKPOINT: {checkpoint}==========")
-    model_env = ModelEnvironment.from_pretrained_lm(checkpoint)
+    model_env = ModelEnvironment.from_pretrained_generative(checkpoint)
     tokenizer = model_env.get_tokenizer()
     calc = StereotypeScoreCalculator(model_env, tokenizer, model_env, tokenizer)
     base_lm, base_ss = get_ss(calc, model_env)

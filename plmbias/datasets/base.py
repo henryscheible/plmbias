@@ -1,9 +1,10 @@
 
 class StereotypeDataset:
-    def __init__(self, tokenizer):
+    def __init__(self, tokenizer, is_generative=False):
         self.eval_split = None
         self.train_split = None
         self.tokenizer = tokenizer
+        self.is_generative = is_generative
 
     def get_train_split(self):
         if self.train_split is None:
