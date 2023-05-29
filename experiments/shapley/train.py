@@ -15,26 +15,6 @@ import wandb
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-os.environ["WANDB_MODE"] = "online"
-
-os.environ["CHECKPOINT"] = "t5-small_stereoset_finetuned"
-os.environ["DATASET"] = "stereoset"
-
-
-def compute_metrics_generative(logits, labels):
-    true_label_id = model_env.get_tokenizer()("true").input_ids[0]
-    false_label_id = model_env.get_tokenizer()("false").input_ids[0]
-    true_logit = logits[:, 1, true_label_id]
-    false_logit = logits[:, 1, false_label_id]
-    binary_logits = np.stack([false_logit, true_logit], axis=-1)
-    predictions = np.argmax(binary_logits, axis=-1)
-    binary_labels = np.array(list(map(lambda label: 0 if label[0] == false_label_id else 1, labels)))
-    confusion_matrix = np.zeros((2, 2))
-    for label, pred in zip(binary_labels, predictions):
-        confusion_matrix[label, pred] += 1
-    return np.sum(predictions == binary_labels) / float(len(binary_labels))
-
-
 def attribute_factory(model, eval_dataloader, shape):
     def attribute(mask):
         mask = mask.flatten()
@@ -79,13 +59,16 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
 
 checkpoint = os.environ.get("CHECKPOINT")
 dataset = os.environ.get("DATASET")
+source = os.environ.get("SOURCE")
 
 run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
 
-
-artifact_name = f"{checkpoint}:latest"
-artifact = run.use_artifact(artifact_name)
-model_dir = artifact.download()
+if source == "wandb":
+    artifact_name = f"{checkpoint}:latest"
+    artifact = run.use_artifact(artifact_name)
+    model_dir = artifact.download()
+else:
+    model_dir = checkpoint
 
 if "t5" in artifact_name:
     model_is_generative = True
@@ -102,7 +85,8 @@ eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=
 print("")
 get_shapley(eval_dataloader, model_env, num_samples=250)
 
-contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
-contribs_artifact.add_file(local_path="contribs.txt")
+if source == "wandb":
+    contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
+    contribs_artifact.add_file(local_path="contribs.txt")
 
 run.log_artifact(contribs_artifact)
