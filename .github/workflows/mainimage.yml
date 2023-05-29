@@ -22,8 +22,50 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build and push Main Image
         uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
-          tags: henryscheible/plmbias:latest
+          tags: plmbias:latest
+          load: true
+      - 
+        name: Build and push Train image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./experiments/train
+          build-contexts: |
+            henryscheible/plmbias:latest=docker-image://plmbias:latest
+          push: true
+          tags: henryscheible/train:latest
+          load: true
+      -
+        name: Build and push Shapley image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./experiments/shapley
+          build-contexts: |
+            henryscheible/plmbias:latest=docker-image://plmbias:latest
+          push: true
+          tags: henryscheible/shapley:latest
+          load: true
+      - 
+        name: Build and push Ablation image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./experiments/ablation
+          build-contexts: |
+            henryscheible/plmbias:latest=docker-image://plmbias:latest
+          push: true
+          tags: henryscheible/ablation:latest
+          load: true
+      - 
+        name: Build and push SS Ablation image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./experiments/ss_ablation
+          build-contexts: |
+            henryscheible/plmbias:latest=docker-image://plmbias:latest
+          push: true
+          tags: henryscheible/ss_ablation:latest
+          load: true
