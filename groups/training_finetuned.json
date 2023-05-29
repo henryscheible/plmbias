@@ -1,3 +1,0 @@
-{"contexts": {"dsail2": "ssh://henry@dsail2.cs.dartmouth.edu", "mms-large-1": "ssh://henry@mms-large-1.cs.dartmouth.edu", "mms-large-2": "ssh://henry@mms-large-2.cs.dartmouth.edu"}, "experiments": [
-  {"name": "gpt2_crows_pairs_finetuned", "image": "train", "context": "mms-large-1", "card": 0, "buildargs": {"MODEL": "gpt2", "DATASET": "crows_pairs", "TRAIN_TYPE": "finetuned"}},
-  {"name": "xlnet-base-cased_winobias_finetuned", "image": "train", "context": "dsail2", "card": 0, "buildargs": {"MODEL": "xlnet-base-cased", "DATASET": "winobias", "TRAIN_TYPE": "finetuned"}}]}

@@ -1,6 +1,0 @@
-{"contexts":
-{"dsail2": "ssh://henry@dsail2.cs.dartmouth.edu", "mms-large-1": "ssh://henry@mms-large-1.cs.dartmouth.edu", "mms-large-2": "ssh://henry@mms-large-2.cs.dartmouth.edu"},
-  "experiments": [
-    {"name": "xlnet-base-cased_winobias_finetuned", "image": "train", "context": "dsail2", "card": 2,
-      "buildargs": {"MODEL": "xlnet-base-cased", "DATASET": "winobias", "TRAIN_TYPE": "finetuned", "LR": 5e-05}}
-    ]}
