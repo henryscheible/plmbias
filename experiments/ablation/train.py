@@ -13,6 +13,13 @@ from datetime import datetime
 
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
+import wandb
+
+checkpoint = os.environ["CHECKPOINT"]
+dataset_name = os.environ["DATASET"]
+source = os.environ["SOURCE"]
+
+run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
 
 
 def pull_contribs(checkpoint):
@@ -89,21 +96,29 @@ def evaluate_model(eval_loader, model_env, mask=None):
 
     for eval_batch in eval_loader:
         eval_batch = {k: v.to("cuda" if torch.cuda.is_available() else "cpu") for k, v in eval_batch.items()}
-        with torch.no_grad():
-            outputs = model(**eval_batch, head_mask=mask.reshape(model_env.get_mask_shape())) if mask is not None else model(**eval_batch)
-
-        logits = outputs.logits
-        predictions = torch.argmax(logits, dim=-1)
-        metric.add_batch(predictions=predictions, references=eval_batch["labels"])
+        model_env.evaluate_batch(eval_batch, mask, metric)
 
     return float(metric.compute()["accuracy"])
 
 
 def test_shapley(checkpoint, dataset_name):
     print(f"=======CHECKPOINT: {checkpoint}==========")
-    model_env = ModelEnvironment.from_pretrained(checkpoint)
-    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-    dataset = StereotypeDataset.from_name(dataset_name, tokenizer)
+    if source == "wandb":
+        artifact_name = f"{checkpoint}:latest"
+        artifact = run.use_artifact(artifact_name)
+        model_dir = artifact.download()
+    else:
+        model_dir = checkpoint
+
+    if "t5" in artifact_name:
+        model_is_generative = True
+        model_env = ModelEnvironment.from_pretrained_generative(model_dir)
+        dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
+        model_env.setup_dataset(dataset)
+    else:
+        model_is_generative = False
+        model_env = ModelEnvironment.from_pretrained(model_dir)
+        dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=512, collate_fn=data_collator)
     base_acc = evaluate_model(eval_dataloader, model_env)
@@ -136,16 +151,19 @@ def test_shapley(checkpoint, dataset_name):
     }
 
 
-checkpoint = os.environ["CHECKPOINT"]
-dataset_name = os.environ["DATASET"]
-
-
 results = test_shapley(checkpoint, dataset_name)
 
 print(results)
 
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
+
+
+if source == "wandb":
+    results_artifact = wandb.Artifact(name=f"{checkpoint}_ablation", type="ablation_results")
+    results_artifact.add_file(local_path="results.json")
+    run.log_artifact(results_artifact)
+
 
 time = datetime.now()
 api = HfApi()

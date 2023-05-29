@@ -20,14 +20,10 @@ def attribute_factory(model, eval_dataloader, shape):
         mask = mask.flatten()
         metric = evaluate.load("accuracy")
         model.eval()
-        accuracies = []
         for eval_batch in eval_dataloader:
             eval_batch = {k: v.to(device) for k, v in eval_batch.items()}
             model_env.evaluate_batch(eval_batch, mask, metric)
-        if model_is_generative:
-            return np.mean(accuracies)
-        else:
-            return metric.compute()["accuracy"]
+        return metric.compute()["accuracy"]
 
     return attribute
 
@@ -88,5 +84,4 @@ get_shapley(eval_dataloader, model_env, num_samples=250)
 if source == "wandb":
     contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
     contribs_artifact.add_file(local_path="contribs.txt")
-
-run.log_artifact(contribs_artifact)
+    run.log_artifact(contribs_artifact)

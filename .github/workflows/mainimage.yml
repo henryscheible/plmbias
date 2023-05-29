@@ -33,7 +33,7 @@ jobs:
         with:
           context: ./experiments/train
           build-contexts: |
-            henryscheible/plmbias:latest=docker-image://plmbias:latest
+            plmbias=docker-image://plmbias:latest
           push: true
           tags: henryscheible/train:latest
       -
@@ -42,7 +42,7 @@ jobs:
         with:
           context: ./experiments/shapley
           build-contexts: |
-            henryscheible/plmbias:latest=docker-image://plmbias:latest
+            plmbias=docker-image://plmbias:latest
           push: true
           tags: henryscheible/shapley:latest
       - 
@@ -51,7 +51,7 @@ jobs:
         with:
           context: ./experiments/ablation
           build-contexts: |
-            henryscheible/plmbias:latest=docker-image://plmbias:latest
+            plmbias=docker-image://plmbias:latest
           push: true
           tags: henryscheible/ablation:latest
       - 
@@ -60,6 +60,6 @@ jobs:
         with:
           context: ./experiments/ss_ablation
           build-contexts: |
-            henryscheible/plmbias:latest=docker-image://plmbias:latest
+            plmbias=docker-image://plmbias:latest
           push: true
           tags: henryscheible/ss_ablation:latest
