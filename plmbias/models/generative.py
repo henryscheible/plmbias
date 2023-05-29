@@ -93,8 +93,8 @@ class GenerativeEnvironment(ModelEnvironment):
         labels = eval_batch["labels"]
         true_label_id = self.tokenizer("true").input_ids[0]
         false_label_id = self.tokenizer("false").input_ids[0]
-        true_logit = logits[0][:, 1, true_label_id]
-        false_logit = logits[0][:, 1, false_label_id]
+        true_logit = logits[:, 1, true_label_id].detach().cpu().numpy()
+        false_logit = logits[:, 1, false_label_id].detach().cpu().numpy()
         binary_logits = np.stack([false_logit, true_logit], axis=-1)
         predictions = np.argmax(binary_logits, axis=-1)
         binary_labels = np.array(list(map(lambda label: 0 if label[0] == false_label_id else 1, labels)))

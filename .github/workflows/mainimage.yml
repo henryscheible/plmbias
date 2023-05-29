@@ -26,40 +26,50 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: plmbias:latest
+          tags: henryscheible/plmbias:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - 
         name: Build and push Train image
         uses: docker/build-push-action@v4
         with:
           context: ./experiments/train
           build-contexts: |
-            plmbias=docker-image://plmbias:latest
+            plmbias=docker-image://henryscheible/plmbias:latest
           push: true
           tags: henryscheible/train:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       -
         name: Build and push Shapley image
         uses: docker/build-push-action@v4
         with:
           context: ./experiments/shapley
           build-contexts: |
-            plmbias=docker-image://plmbias:latest
+            plmbias=docker-image://henryscheible/plmbias:latest
           push: true
           tags: henryscheible/shapley:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - 
         name: Build and push Ablation image
         uses: docker/build-push-action@v4
         with:
           context: ./experiments/ablation
           build-contexts: |
-            plmbias=docker-image://plmbias:latest
+            plmbias=docker-image://henryscheible/plmbias:latest
           push: true
           tags: henryscheible/ablation:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - 
         name: Build and push SS Ablation image
         uses: docker/build-push-action@v4
         with:
           context: ./experiments/ss_ablation
           build-contexts: |
-            plmbias=docker-image://plmbias:latest
+            plmbias=docker-image://henryscheible/plmbias:latest
           push: true
           tags: henryscheible/ss_ablation:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

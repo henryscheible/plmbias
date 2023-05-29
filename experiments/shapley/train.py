@@ -13,6 +13,8 @@ from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
 
+os.system(f"wandb login {os.environ.get('WANDB_TOKEN')}")
+
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def attribute_factory(model, eval_dataloader, shape):
@@ -79,7 +81,7 @@ else:
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
 print("")
-get_shapley(eval_dataloader, model_env, num_samples=250)
+get_shapley(eval_dataloader, model_env, num_samples=50)
 
 if source == "wandb":
     contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
