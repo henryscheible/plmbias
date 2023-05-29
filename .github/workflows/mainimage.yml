@@ -28,7 +28,6 @@ jobs:
           context: .
           push: true
           tags: plmbias:latest
-          load: true
       - 
         name: Build and push Train image
         uses: docker/build-push-action@v4
@@ -38,7 +37,6 @@ jobs:
             henryscheible/plmbias:latest=docker-image://plmbias:latest
           push: true
           tags: henryscheible/train:latest
-          load: true
       -
         name: Build and push Shapley image
         uses: docker/build-push-action@v4
@@ -48,7 +46,6 @@ jobs:
             henryscheible/plmbias:latest=docker-image://plmbias:latest
           push: true
           tags: henryscheible/shapley:latest
-          load: true
       - 
         name: Build and push Ablation image
         uses: docker/build-push-action@v4
@@ -58,7 +55,6 @@ jobs:
             henryscheible/plmbias:latest=docker-image://plmbias:latest
           push: true
           tags: henryscheible/ablation:latest
-          load: true
       - 
         name: Build and push SS Ablation image
         uses: docker/build-push-action@v4
@@ -68,4 +64,3 @@ jobs:
             henryscheible/plmbias:latest=docker-image://plmbias:latest
           push: true
           tags: henryscheible/ss_ablation:latest
-          load: true
