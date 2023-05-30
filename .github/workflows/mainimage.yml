@@ -29,8 +29,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./deps_image
-          push: false
-          tags: plmbias-deps
+          push: true
+          tags: henryscheible/plmbias-deps:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       -
@@ -40,7 +40,7 @@ jobs:
           push: true
           tags: henryscheible/plmbias:latest
           build-contexts: |
-            plmbias-deps=docker-image://plmbias-deps
+            plmbias-deps=docker-image://henryscheible/plmbias-deps:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
