@@ -123,7 +123,7 @@ def test_shapley(checkpoint, dataset_name):
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=512, collate_fn=data_collator)
     base_acc = evaluate_model(eval_dataloader, model_env)
 
-    contribs = pull_contribs(checkpoint)
+    contribs_artifact = run.use_artifact(f"{checkpoint}_contribs:latest")
 
     bottom_up_results = []
     for mask in tqdm(get_bottom_up_masks(contribs)):

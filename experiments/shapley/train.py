@@ -62,7 +62,7 @@ source = os.environ.get("SOURCE")
 run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
 
 if source == "wandb":
-    artifact_name = f"{checkpoint}:latest"
+    artifact_name = f"model-{checkpoint}:latest"
     artifact = run.use_artifact(artifact_name)
     model_dir = artifact.download()
 else:
@@ -81,7 +81,9 @@ else:
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
 print("")
-get_shapley(eval_dataloader, model_env, num_samples=50)
+num_samples = os.environ.get("SAMPLES")
+num_samples = int(num_samples) if num_samples is not None else 1
+get_shapley(eval_dataloader, model_env, num_samples=num_samples)
 
 if source == "wandb":
     contribs_artifact = wandb.Artifact(name=f"{checkpoint}_contribs", type="contribs")
