@@ -21,18 +21,29 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      -
+        name: Build and push Deps Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./deps_image
+          push: false
+          tags: plmbias-deps
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       -
         name: Build and push Main Image
         uses: docker/build-push-action@v4
         with:
           push: true
           tags: henryscheible/plmbias:latest
+          build-contexts: |
+            plmbias-deps=docker-image://plmbias-deps
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - 
-        name: Checkout Code
-        uses: actions/checkout@v3
+
       -
         name: Build and push Train image
         uses: docker/build-push-action@v4
