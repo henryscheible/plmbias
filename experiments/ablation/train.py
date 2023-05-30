@@ -18,7 +18,7 @@ import wandb
 contribs_name = os.environ["CONTRIBS"]
 dataset_name = os.environ["DATASET"]
 
-run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
+run = wandb.init(project="plmbias", name=f"{contribs_name}_ablation")
 
 def get_positive_mask(contribs):
     ret = []
@@ -92,28 +92,10 @@ def evaluate_model(eval_loader, model_env, mask=None):
     return float(metric.compute()["accuracy"])
 
 
-def test_shapley(contribs_name, dataset_name):
+def test_shapley(contribs, model_env, dataset):
     print(f"=======CONTRIBS: {contribs_name}==========")
 
-    contribs_artifact = run.use_artifact(contribs_name)
-    contribs_dir = contribs_artifact.download()
-    with open(os.path.join(contribs_dir, "contribs.txt"), "r") as f:
-        contribs = json.loads(f.read())
-    api = wandb.api()
-    candidate_model_artifacts = filter(lambda x : x.type == "model", api.Artifact(contribs_name).logged_by().used_artifacts())
-    model_artifact = candidate_model_artifacts(0)
-    artifact_name = f"{model_artifact._project}/{model_artifact._artifact_name}"
-
-    artifact = run.use_artifact(artifact_name)
-    model_dir = artifact.download()
-
-    if "t5" in artifact_name:
-        model_env = ModelEnvironment.from_pretrained_generative(model_dir)
-        dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
-        model_env.setup_dataset(dataset)
-    else:
-        model_env = ModelEnvironment.from_pretrained(model_dir)
-        dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
+    
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=512, collate_fn=data_collator)
     base_acc = evaluate_model(eval_dataloader, model_env)
@@ -145,13 +127,34 @@ def test_shapley(contribs_name, dataset_name):
     }
 
 
-results = test_shapley(contribs_name, dataset_name)
+contribs_artifact = run.use_artifact(contribs_name)
+contribs_dir = contribs_artifact.download()
+print(f"contribs_name: {contribs_name}, contribs_dir: {contribs_dir}")
+with open(os.path.join(contribs_dir, "contribs.txt"), "r") as f:
+    contribs = json.loads(f.read())
+api = wandb.api()
+candidate_model_artifacts = filter(lambda x : x.type == "model", api.Artifact(contribs_name).logged_by().used_artifacts())
+model_artifact = candidate_model_artifacts(0)
+artifact_name = f"{model_artifact._project}/{model_artifact._artifact_name}"
+
+artifact = run.use_artifact(artifact_name)
+model_dir = artifact.download()
+
+if "t5" in artifact_name:
+    model_env = ModelEnvironment.from_pretrained_generative(model_dir)
+    dataset = StereotypeDataset.from_name(dataset_name, model_env.get_tokenizer())
+    model_env.setup_dataset(dataset)
+else:
+    model_env = ModelEnvironment.from_pretrained(model_dir)
+    dataset = StereotypeDataset.from_name(dataset_name, model_env.get_tokenizer())
+
+results = test_shapley(contribs, model_env, dataset)
 
 print(results)
 
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
 
-results_artifact = wandb.Artifact(name=f"{checkpoint}_ablation", type="ablation_results")
+results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_ablation", type="ablation_results")
 results_artifact.add_file(local_path="results.json")
 run.log_artifact(results_artifact)
