@@ -88,7 +88,7 @@ class GenerativeEnvironment(ModelEnvironment):
         shape = self.get_mask_shape()
         with torch.no_grad():
             outputs = self.model(**eval_batch, head_mask=mask[:shape[0] * shape[1]].reshape(shape),
-                                 decoder_head_mask=mask[shape[0] * shape[1]:].reshape(shape))
+                                 decoder_head_mask=mask[shape[0] * shape[1]:].reshape(shape)) if mask is not None else self.model(**eval_batch)
         logits = outputs.logits
         labels = eval_batch["labels"]
         true_label_id = self.tokenizer("true").input_ids[0]

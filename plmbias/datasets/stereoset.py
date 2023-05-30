@@ -11,7 +11,6 @@ class Stereoset(StereotypeDataset):
             labels = []
             contexts = []
             for i in range(3):
-                print(f"example: {example}")
                 if example["sentences"][0]["gold_label"][i] != 2:
                     sentences.append(example["sentences"][0]["sentence"][i])
                     labels.append(example["sentences"][0]["gold_label"][i])
@@ -33,10 +32,8 @@ class Stereoset(StereotypeDataset):
             "bias_type",
         ])
         dataset_processed = dataset.map(process_fn, batched=True, batch_size=1, remove_columns=["sentences"])
-        print(dataset_processed.column_names)
         tokenized_dataset = dataset_processed.map(tokenize, batched=True, batch_size=64,
                                                   remove_columns=["context", "sentence"])
-        print(tokenized_dataset.column_names)
 
         split_tokenized_dataset = tokenized_dataset.train_test_split(
             test_size=0.3

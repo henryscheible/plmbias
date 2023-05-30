@@ -15,6 +15,8 @@ from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
 
+os.system(f"wandb login {os.environ.get('WANDB_TOKEN')}")
+
 contribs_name = os.environ["CONTRIBS"]
 dataset_name = os.environ["DATASET"]
 
@@ -132,9 +134,9 @@ contribs_dir = contribs_artifact.download()
 print(f"contribs_name: {contribs_name}, contribs_dir: {contribs_dir}")
 with open(os.path.join(contribs_dir, "contribs.txt"), "r") as f:
     contribs = json.loads(f.read())
-api = wandb.api()
-candidate_model_artifacts = filter(lambda x : x.type == "model", api.Artifact(contribs_name).logged_by().used_artifacts())
-model_artifact = candidate_model_artifacts(0)
+api = wandb.Api()
+candidate_model_artifacts = filter(lambda x : x.type == "model", api.artifact(contribs_name).logged_by().used_artifacts())
+model_artifact = list(candidate_model_artifacts)[0]
 artifact_name = f"{model_artifact._project}/{model_artifact._artifact_name}"
 
 artifact = run.use_artifact(artifact_name)

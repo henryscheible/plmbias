@@ -1,3 +1,4 @@
+docker build ./deps_image -t plmbias-deps
 docker build . -t plmbias
 docker build ./experiments/train -t train
 docker build ./experiments/shapley -t shapley
