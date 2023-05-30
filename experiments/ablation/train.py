@@ -15,19 +15,10 @@ from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
 
-checkpoint = os.environ["CHECKPOINT"]
+contribs_name = os.environ["CONTRIBS"]
 dataset_name = os.environ["DATASET"]
-source = os.environ["SOURCE"]
 
 run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
-
-
-def pull_contribs(checkpoint):
-    res = requests.get(f"https://huggingface.co/{checkpoint}/raw/main/contribs.txt")
-    print(f"https://huggingface.co/{checkpoint}/raw/main/contribs.txt")
-    print(res.text)
-    return json.loads(res.text)
-
 
 def get_positive_mask(contribs):
     ret = []
@@ -101,29 +92,32 @@ def evaluate_model(eval_loader, model_env, mask=None):
     return float(metric.compute()["accuracy"])
 
 
-def test_shapley(checkpoint, dataset_name):
-    print(f"=======CHECKPOINT: {checkpoint}==========")
-    if source == "wandb":
-        artifact_name = f"{checkpoint}:latest"
-        artifact = run.use_artifact(artifact_name)
-        model_dir = artifact.download()
-    else:
-        model_dir = checkpoint
+def test_shapley(contribs_name, dataset_name):
+    print(f"=======CONTRIBS: {contribs_name}==========")
+
+    contribs_artifact = run.use_artifact(contribs_name)
+    contribs_dir = contribs_artifact.download()
+    with open(os.path.join(contribs_dir, "contribs.txt"), "r") as f:
+        contribs = json.loads(f.read())
+    api = wandb.api()
+    candidate_model_artifacts = filter(lambda x : x.type == "model", api.Artifact(contribs_name).logged_by().used_artifacts())
+    model_artifact = candidate_model_artifacts(0)
+    artifact_name = f"{model_artifact._project}/{model_artifact._artifact_name}"
+
+    artifact = run.use_artifact(artifact_name)
+    model_dir = artifact.download()
 
     if "t5" in artifact_name:
-        model_is_generative = True
         model_env = ModelEnvironment.from_pretrained_generative(model_dir)
         dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
         model_env.setup_dataset(dataset)
     else:
-        model_is_generative = False
         model_env = ModelEnvironment.from_pretrained(model_dir)
         dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=512, collate_fn=data_collator)
     base_acc = evaluate_model(eval_dataloader, model_env)
 
-    contribs_artifact = run.use_artifact(f"{checkpoint}_contribs:latest")
 
     bottom_up_results = []
     for mask in tqdm(get_bottom_up_masks(contribs)):
@@ -151,25 +145,13 @@ def test_shapley(checkpoint, dataset_name):
     }
 
 
-results = test_shapley(checkpoint, dataset_name)
+results = test_shapley(contribs_name, dataset_name)
 
 print(results)
 
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
 
-
-if source == "wandb":
-    results_artifact = wandb.Artifact(name=f"{checkpoint}_ablation", type="ablation_results")
-    results_artifact.add_file(local_path="results.json")
-    run.log_artifact(results_artifact)
-
-
-time = datetime.now()
-api = HfApi()
-api.upload_file(
-    path_or_fileobj="results.json",
-    path_in_repo=f"results.json",
-    repo_id=checkpoint,
-    repo_type="model",
-)
+results_artifact = wandb.Artifact(name=f"{checkpoint}_ablation", type="ablation_results")
+results_artifact.add_file(local_path="results.json")
+run.log_artifact(results_artifact)
