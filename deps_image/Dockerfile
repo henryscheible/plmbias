@@ -16,4 +16,4 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 
 ENV PATH=$CONDA_DIR/bin:$PATH
 RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
-RUN python -m pip install "transformers[sentencepiece]" scikit-learn datasets evaluate captum dropbox scikit-learn wandb
+RUN python -m pip install "transformers[sentencepiece]" scikit-learn datasets evaluate captum dropbox scikit-learn wandb accelerate
