@@ -70,7 +70,7 @@ os.environ["WANDB_PROJECT"] = name
 
 compute_metrics = model_env.get_compute_metrics_fn()
 
-for param in model_env.get_classifieronly_params():
+for param in model_env.get_model().parameters():
     param.requires_grad = False
 
 if train_type == "classifieronly":
