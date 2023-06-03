@@ -17,7 +17,6 @@ from plmbias.models import ModelEnvironment
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-
 os.environ["WANDB_MODE"] = "online"
 
 is_test = os.environ.get("IS_TEST") == "true"
