@@ -6,7 +6,7 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machi
 #RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 RUN apt-get update && \
     apt-get install -y build-essential  && \
-    apt-get install -y wget && \
+    apt-get install -y wget git git-lfs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -16,8 +16,4 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 
 ENV PATH=$CONDA_DIR/bin:$PATH
 RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
-RUN python -m pip install "transformers[sentencepiece]" scikit-learn datasets evaluate captum dropbox
-RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get install git-lfs
-RUN pip install scikit-learn wandb
+RUN python -m pip install "transformers[sentencepiece]" scikit-learn datasets evaluate captum dropbox scikit-learn wandb

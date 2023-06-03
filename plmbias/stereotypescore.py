@@ -21,7 +21,7 @@ class StereotypeScoreCalculator:
         self.intersentence_splits = self._get_stereoset_intersentence()
         self.intrasentence_splits = self._get_stereoset_intrasentence(intrasentence_tokenizer)
 
-    def set_intersentence_model(self, model):
+    def set_intersentence_model(self, model): 
         self.intersentence_model = model.to(self.device)
 
     def set_intrasentence_model(self, model):

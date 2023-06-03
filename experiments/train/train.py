@@ -43,6 +43,7 @@ transformers.enable_full_determinism(42)
 
 config = wandb.config
 hf_model_id = os.environ.get("MODEL")
+learning_rate = os.environ.get["LEARNING_RATE"] if os.environ.get["LEARNING_RATE"] is not None else (5e-4 if "t5" in hf_model_id else 5e-5)
 train_type = os.environ.get("TRAIN_TYPE")
 dataset = os.environ.get("DATASET")
 model_type = os.environ.get("MODEL_TYPE")
