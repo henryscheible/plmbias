@@ -15,20 +15,20 @@ from transformers import Trainer, DataCollatorWithPadding, TrainingArguments
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 
-config = dict()
-# config["MODEL"] = "t5-small"
-# config["DATASET"] = "stereoset"
-# config["TRAIN_TYPE"] = "finetuned"
-# config["per_device_train_batch_size"] = 64
-# config["learning_rate"] = 5e-4
-# config["adam_beta1"] = 0.9
-# config["adam_beta2"] = 0.999
-# config["adam_epsilon"] = 1e-8
-
-
 os.environ["WANDB_MODE"] = "online"
-# os.environ["WANDB_LOG_MODEL"] = "end"
 os.environ["WANDB_WATCH"] = "all"
+
+is_test = os.environ.get("IS_TEST") == "true"
+
+if is_test:
+    os.environ["MODEL"] = "t5-small"
+    os.environ["DATASET"] = "stereoset"
+    os.environ["TRAIN_TYPE"] = "finetuned"
+    os.environ["LEARNING_RATE"] = 5e-4
+    os.environ["MODEL_TYPE"] = "generative"
+    os.environ["WANDB_MODE"] = "offline"
+
+config = dict()
 
 
 rand_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
@@ -88,7 +88,7 @@ training_args = TrainingArguments(
     save_steps=20,
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
-    num_train_epochs=30,
+    num_train_epochs=30 if not is_test else 1,
     log_level="debug",
     load_best_model_at_end=True,
     metric_for_best_model="accuracy",
