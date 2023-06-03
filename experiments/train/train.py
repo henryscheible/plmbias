@@ -29,7 +29,6 @@ if is_test:
     os.environ["TRAIN_TYPE"] = "finetuned"
     os.environ["LEARNING_RATE"] = "5e-4"
     os.environ["MODEL_TYPE"] = "generative"
-    os.environ["WANDB_MODE"] = "offline"
 
 config = dict()
 
@@ -52,7 +51,7 @@ dataset = os.environ.get("DATASET")
 model_type = os.environ.get("MODEL_TYPE")
 group = f"{hf_model_id.replace('/', '-')}_{dataset}_{train_type}"
 name = f"{group}_{rand_id}"
-run = wandb.init(name=group, project="plmbias", group="train")
+run = wandb.init(name=group, project="plmbias" if not is_test else "plmbias-test", group="train")
 wandb.define_metric("eval/accuracy", summary="max")
 
 if model_type == "generative":
