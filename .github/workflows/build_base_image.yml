@@ -1,0 +1,41 @@
+name: build_base_image
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build and export
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          tags: ghcr.io/henryscheible/plmbias:latest ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          push: true
+          cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
+          cache-to: type=inline
