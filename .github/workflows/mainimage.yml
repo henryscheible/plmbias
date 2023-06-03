@@ -30,7 +30,6 @@ jobs:
         with:
           push: true
           tags: henryscheible/plmbias:latest
-          load: true
           build-contexts: |
             plmbias-deps=docker-image://henryscheible/plmbias-deps:latest
           cache-from: type=gha
