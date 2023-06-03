@@ -84,11 +84,13 @@ class GenerativeEnvironment(ModelEnvironment):
         dataset.train_split = train_split
         dataset.eval_split = eval_split
 
-    def evaluate_batch(self, eval_batch, mask, metric):
+    def evaluate_batch(self, eval_batch, metric, encoder_mask = None, decoder_mask = None):
         shape = self.get_mask_shape()
+        decoder_shape = self.get_mask_shape_decoder()
+        
         with torch.no_grad():
-            outputs = self.model(**eval_batch, head_mask=mask[:shape[0] * shape[1]].reshape(shape),
-                                 decoder_head_mask=mask[shape[0] * shape[1]:].reshape(shape)) if mask is not None else self.model(**eval_batch)
+            outputs = self.model(**eval_batch, head_mask=encoder_mask.reshape(shape) if encoder_mask is not None else None,
+                                 decoder_head_mask=decoder_mask.reshape(decoder_shape) if decoder_mask is not None else None)
         logits = outputs.logits
         labels = eval_batch["labels"]
         true_label_id = self.tokenizer("true").input_ids[0]
@@ -103,5 +105,11 @@ class GenerativeEnvironment(ModelEnvironment):
     def get_mask_shape(self):
         return torch.Size([
             self.model.config.num_hidden_layers,
+            self.model.config.num_attention_heads
+        ])
+    
+    def get_mask_shape_decoder(self):
+        return torch.Size([
+            self.model.config.num_decoder_layers,
             self.model.config.num_attention_heads
         ])

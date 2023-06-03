@@ -23,14 +23,26 @@ if is_test:
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-def attribute_factory(model, eval_dataloader, shape):
+has_evaled = False
+
+def attribute_factory(model, eval_dataloader, portion = None):
     def attribute(mask):
+        if is_test:
+            if has_evaled:
+                return 0
         mask = mask.flatten()
         metric = evaluate.load("accuracy")
         model.eval()
         for eval_batch in eval_dataloader:
             eval_batch = {k: v.to(device) for k, v in eval_batch.items()}
-            model_env.evaluate_batch(eval_batch, mask, metric)
+            if portion == "encoder":
+                model_env.evaluate_batch(eval_batch, metric, encoder_mask = mask)
+            if portion == "decoder":
+                model_env.evaluate_batch(eval_batch, metric, decoder_mask = mask)
+            else:
+                model_env.evaluate_batch(eval_batch, metric, mask)
+        if is_test:
+            has_evaled = True
         return metric.compute()["accuracy"]
 
     return attribute
@@ -40,7 +52,7 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
 
     mask = torch.ones(model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
     if model_is_generative:
-        mask = torch.ones(model_env.get_mask_shape(), model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
+        mask = torch.ones(model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
 
     model = model_env.get_model().to(device)
     attribute = attribute_factory(model, eval_dataloader, model_env.get_mask_shape())
