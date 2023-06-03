@@ -15,6 +15,9 @@ from transformers import Trainer, DataCollatorWithPadding, TrainingArguments
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 
+device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
+
+
 os.environ["WANDB_MODE"] = "online"
 os.environ["WANDB_WATCH"] = "all"
 
@@ -65,6 +68,7 @@ else:
 
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
 
+model_env.get_model().to(device)
 
 os.environ["WANDB_PROJECT"] = name
 
@@ -95,7 +99,6 @@ training_args = TrainingArguments(
     logging_steps=10,
     learning_rate=5e-4 if "t5" in name else 5e-5,
     report_to=["wandb"],
-    device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
     # push_to_hub=True,
     run_name=group
 )
