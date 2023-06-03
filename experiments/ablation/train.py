@@ -85,7 +85,7 @@ def get_top_down_masks_rev(contribs):
     return [torch.tensor(mask).to("cuda" if torch.cuda.is_available() else "cpu") for mask in masks]
 
 
-def evaluate_model(eval_loader, model_env, mask=None):
+def evaluate_model(eval_loader, model_env, portion=None, mask=None):
     model = model_env.get_model()
     model.eval()
     model.to("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,15 +93,19 @@ def evaluate_model(eval_loader, model_env, mask=None):
 
     for eval_batch in eval_loader:
         eval_batch = {k: v.to("cuda" if torch.cuda.is_available() else "cpu") for k, v in eval_batch.items()}
-        model_env.evaluate_batch(eval_batch, mask, metric)
+        if portion == "encoder":
+            model_env.evaluate_batch(eval_batch, metric, encoder_mask=mask)
+        elif portion == "decoder":
+            model_env.evaluate_batch(eval_batch, metric, decoder_mask=mask)
+        else:
+            model_env.evaluate_batch(eval_batch, mask, metric)
 
     return float(metric.compute()["accuracy"])
 
 
-def test_shapley(contribs, model_env, dataset):
+def test_shapley(contribs, model_env, dataset, portion):
     print(f"=======CONTRIBS: {contribs_name}==========")
 
-    
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=4096, collate_fn=data_collator)
     base_acc = evaluate_model(eval_dataloader, model_env)

@@ -19,7 +19,6 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 
 os.environ["WANDB_MODE"] = "online"
-os.environ["WANDB_WATCH"] = "all"
 
 is_test = os.environ.get("IS_TEST") == "true"
 
@@ -92,7 +91,7 @@ training_args = TrainingArguments(
     max_steps=20 if is_test else -1,
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
-    num_train_epochs=30 if not is_test else 1,
+    num_train_epochs=10 if not is_test else 1,
     log_level="debug",
     load_best_model_at_end=True,
     metric_for_best_model="accuracy",
