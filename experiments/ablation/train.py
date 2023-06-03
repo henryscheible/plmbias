@@ -15,8 +15,6 @@ from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
 
-os.system(f"wandb login {os.environ.get('WANDB_TOKEN')}")
-
 is_test = os.environ.get("IS_TEST") == "true"
 
 if is_test:
