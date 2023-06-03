@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          tags: ghcr.io/henryscheible/plmbias:latest ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          tags: ghcr.io/henryscheible/plmbias:latest, ghcr.io/henryscheible/plmbias:${{  github.sha  }}
           push: true
           cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
           cache-to: type=inline
