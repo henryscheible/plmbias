@@ -95,7 +95,7 @@ training_args = TrainingArguments(
     logging_steps=10,
     learning_rate=5e-4 if "t5" in name else 5e-5,
     report_to=["wandb"],
-    device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
     # push_to_hub=True,
     run_name=group
 )
