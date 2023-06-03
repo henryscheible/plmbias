@@ -66,9 +66,8 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
           cache-to: type=inline
   train:
-    needs: changes
-    needs: plmbias
-    if: ${{  needs.changes.outputs.plmbias == 'true'  }}
+    needs: [changes, plmbias]
+    if: ${{  needs.changes.outputs.train == 'true'  }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
