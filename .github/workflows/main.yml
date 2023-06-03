@@ -1,4 +1,4 @@
-name: ghcr_ci
+name: images
 
 on:
   push:
@@ -21,7 +21,10 @@ jobs:
       shapley: ${{  steps.filter.outputs.shapley  }}
       ablation: ${{  steps.filter.outputs.ablation  }}
     steps:
-    - uses: dorny/paths-filter@v2
+    - name: Checkout source code
+      uses: actions/checkout@v1
+    - name: Check for changes
+      uses: dorny/paths-filter@v2
       id: filter
       with:
         filters: |
