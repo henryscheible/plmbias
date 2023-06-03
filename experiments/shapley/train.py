@@ -25,6 +25,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 def attribute_factory(model, eval_dataloader, portion = None):
     def attribute(mask):
+        print(f"PORTION: {portion}")
         if is_test:
             if model_env.has_evaled:
                 return 0
@@ -35,7 +36,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
             eval_batch = {k: v.to(device) for k, v in eval_batch.items()}
             if portion == "encoder":
                 model_env.evaluate_batch(eval_batch, metric, encoder_mask = mask, decoder_mask = torch.ones(model_env.get_mask_shape_decoder()).to(device))
-            if portion == "decoder":
+            elif portion == "decoder":
                 model_env.evaluate_batch(eval_batch, metric, decoder_mask = mask, encoder_mask = torch.ones(model_env.get_mask_shape()).to(device))
             else:
                 model_env.evaluate_batch(eval_batch, metric, mask)
@@ -48,6 +49,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
 def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_per_eval=1):
     transformers.logging.set_verbosity_error()
     model = model_env.get_model().to(device)
+    print(f"MODEL IS GENERATIVE: {model_is_generative}")
 
 
     mask = torch.ones(model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
