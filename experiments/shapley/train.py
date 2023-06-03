@@ -40,7 +40,7 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
 
     mask = torch.ones(model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
     if model_is_generative:
-        mask = torch.ones(model_env.get_mask_shape()[0] * 2, model_env.get_mask_shape()[1]).to(device).flatten().unsqueeze(0)
+        mask = torch.ones(model_env.get_mask_shape(), model_env.get_mask_shape()).to(device).flatten().unsqueeze(0)
 
     model = model_env.get_model().to(device)
     attribute = attribute_factory(model, eval_dataloader, model_env.get_mask_shape())

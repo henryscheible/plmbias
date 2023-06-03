@@ -18,7 +18,7 @@ import wandb
 is_test = os.environ.get("IS_TEST") == "true"
 
 if is_test:
-    os.environ["CONTRIBS"] = "t5-small_stereoset_finetuned_contribs"
+    os.environ["CONTRIBS"] = "t5-small_stereoset_finetuned_contribs:latest"
     os.environ["DATASET"] = "stereoset"
 
 contribs_name = os.environ["CONTRIBS"]

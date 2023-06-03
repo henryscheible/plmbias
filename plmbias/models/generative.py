@@ -102,6 +102,6 @@ class GenerativeEnvironment(ModelEnvironment):
 
     def get_mask_shape(self):
         return torch.Size([
-            self.model.config.num_hidden_layers * 2,
+            self.model.config.num_hidden_layers,
             self.model.config.num_attention_heads
         ])
