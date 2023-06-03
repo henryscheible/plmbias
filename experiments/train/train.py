@@ -15,7 +15,7 @@ from transformers import Trainer, DataCollatorWithPadding, TrainingArguments
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 
-device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
 os.environ["WANDB_MODE"] = "online"
