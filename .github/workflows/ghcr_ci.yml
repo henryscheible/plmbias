@@ -33,13 +33,13 @@ jobs:
         uses: actions/checkout@v3
       - name: Build docker images
         run: |
-          docker build . -t henryscheible/plmbias:latest -t henryscheible/plmbias:${{  github.sha  }}
-          docker build ./experiments/train -t henryscheible/train:latest -t henryscheible/train:${{  github.sha  }}
-          docker build ./experiments/shapley -t henryscheible/shapley:latest -t henryscheible/train:${{  github.sha  }}
-          docker build ./experiments/ablation -t henryscheible/ablation:latest -t henryscheible/train:${{  github.sha  }}
-          docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t henryscheible/train:${{  github.sha  }}
-          docker push -a henryscheible/plmbias
-          docker push -a henryscheible/train
-          docker push -a henryscheible/shapley
-          docker push -a henryscheible/ablation
-          docker push -a henryscheible/ss_ablation
+          docker build . -t henryscheible/plmbias:latest -t ghcr.io/henryscheible/plmbias:latest -t ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          docker build ./experiments/train -t henryscheible/train:latest -t ghcr.io/henryscheible/train:latest -t ghcr.io/henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/shapley -t henryscheible/shapley:latest -t ghcr.io/henryscheible/shapley:latest -t ghcr.io/henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/ablation -t henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:latest -t ghcr.io/henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/train:${{  github.sha  }}
+          docker push -a ghcr.io/henryscheible/plmbias
+          docker push -a ghcr.io/henryscheible/train
+          docker push -a ghcr.io/henryscheible/shapley
+          docker push -a ghcr.io/henryscheible/ablation
+          docker push -a ghcr.io/henryscheible/ss_ablation
