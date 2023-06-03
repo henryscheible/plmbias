@@ -67,7 +67,7 @@ jobs:
           cache-to: type=inline
   train:
     needs: changes, plmbias
-    if: ${{  nneds.changes.outputs.plmbias == 'true'  }}
+    if: ${{  needs.changes.outputs.plmbias == 'true'  }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
