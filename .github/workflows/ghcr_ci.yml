@@ -39,7 +39,7 @@ jobs:
           docker build ./experiments/ablation -t henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:${{  github.sha  }}
           docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:${{  github.sha  }}
 
-          docker run -e IS_TEST=true -it --rm henryscheible/train:latest
+          docker run -e IS_TEST=true --rm henryscheible/train:latest
 
           docker push -a ghcr.io/henryscheible/plmbias
           docker push -a ghcr.io/henryscheible/train
