@@ -1,0 +1,45 @@
+name: docker_ci
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build docker images
+        run: |
+          docker build . -t henryscheible/plmbias:latest -t henryscheible/plmbias:${{  github.sha  }}
+          docker build ./experiments/train -t henryscheible/train:latest -t henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/shapley -t henryscheible/shapley:latest -t henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/ablation -t henryscheible/ablation:latest -t henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t henryscheible/train:${{  github.sha  }}
+          docker push -a henryscheible/plmbias
+          docker push -a henryscheible/train
+          docker push -a henryscheible/shapley
+          docker push -a henryscheible/ablation
+          docker push -a henryscheible/ss_ablation
