@@ -38,13 +38,14 @@ jobs:
           docker build ./experiments/shapley -t henryscheible/shapley:latest -t ghcr.io/henryscheible/shapley:latest -t ghcr.io/henryscheible/shapley:${{  github.sha  }}
           docker build ./experiments/ablation -t henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:${{  github.sha  }}
           docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:${{  github.sha  }}
+          docker push -a ghcr.io/henryscheible/plmbias
 
           docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/train:latest
-          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/shapley:latest
-          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/ablation:latest
-
-          docker push -a ghcr.io/henryscheible/plmbias
           docker push -a ghcr.io/henryscheible/train
+
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/shapley:latest
           docker push -a ghcr.io/henryscheible/shapley
+
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/ablation:latest
           docker push -a ghcr.io/henryscheible/ablation
           docker push -a ghcr.io/henryscheible/ss_ablation
