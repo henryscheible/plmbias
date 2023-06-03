@@ -15,6 +15,14 @@ import wandb
 
 os.system(f"wandb login {os.environ.get('WANDB_TOKEN')}")
 
+is_test = os.environ.get("IS_TEST") == "true"
+
+if is_test:
+    os.environ["CHECKPOINT"] = "t5-small_stereoset_finetuned"
+    os.environ["DATASET"] = "stereoset"
+    os.environ["SOURCE"] = "wandb"
+    os.environ["SAMPLES"] = 1
+
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def attribute_factory(model, eval_dataloader, shape):
