@@ -35,7 +35,7 @@ jobs:
             - 'experiments/ablation/**'
   plmbias:
     needs: changes
-    if: ${{  nneds.changes.outputs.plmbias == 'true'  }}
+    if: ${{  needs.changes.outputs.plmbias == 'true'  }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
