@@ -89,6 +89,7 @@ training_args = TrainingArguments(
     eval_steps=20,
     save_strategy="steps",
     save_steps=20,
+    max_steps=20 if is_test else -1,
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
     num_train_epochs=30 if not is_test else 1,
