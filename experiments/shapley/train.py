@@ -13,6 +13,9 @@ from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
 
+from datasets import disable_caching
+disable_caching()
+
 is_test = os.environ.get("IS_TEST") == "true"
 
 if is_test:
