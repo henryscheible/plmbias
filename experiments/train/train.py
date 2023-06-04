@@ -32,7 +32,6 @@ config = dict()
 
 rand_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-
 transformers.set_seed(42)
 np.random.seed(42)
 torch.manual_seed(42)
