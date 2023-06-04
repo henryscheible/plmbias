@@ -1,44 +1,15 @@
-name: images
+name: ghcr_ci
 
 on:
   push:
-    branches: [main]
-  
+    branches:
+      - 'main'
 
 env:
   REGISTRY: ghcr.io
-  TEST_TAG: train:test
-  PUSH_TAGS: ghcr.io/henryscheible/train:latest, ghcr.io/henryscheible/train:${{  github.sha  }}
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      plmbias: ${{  steps.filter.outputs.plmbias  }}
-      train: ${{  steps.filter.outputs.train  }}
-      shapley: ${{  steps.filter.outputs.shapley  }}
-      ablation: ${{  steps.filter.outputs.ablation  }}
-    steps:
-    - name: Checkout source code
-      uses: actions/checkout@v1
-    - name: Check for changes
-      uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          plmbias:
-            - 'plmbias/**'
-          train:
-            - 'experiments/train/**'
-          shapley:
-            - 'experiments/shapley/**'
-          ablation:
-            - 'experiments/ablation/**'
-  plmbias:
-    needs: changes
-    if: ${{  needs.changes.outputs.plmbias == 'true'  }}
+  docker:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -60,46 +31,21 @@ jobs:
       - 
         name: Checkout Code
         uses: actions/checkout@v3
-      - name: Build and export
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          tags: ghcr.io/henryscheible/plmbias:latest, ghcr.io/henryscheible/plmbias:${{  github.sha  }}
-          push: true
-          cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
-          cache-to: type=inline
-  train:
-    needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.train == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Build docker images
+        run: |
+          docker build . -t henryscheible/plmbias:latest -t ghcr.io/henryscheible/plmbias:latest -t ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          docker build ./experiments/train -t henryscheible/train:latest -t ghcr.io/henryscheible/train:latest -t ghcr.io/henryscheible/train:${{  github.sha  }}
+          docker build ./experiments/shapley -t henryscheible/shapley:latest -t ghcr.io/henryscheible/shapley:latest -t ghcr.io/henryscheible/shapley:${{  github.sha  }}
+          docker build ./experiments/ablation -t henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:latest -t ghcr.io/henryscheible/ablation:${{  github.sha  }}
+          docker build ./experiments/ss_ablation -t henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:latest -t ghcr.io/henryscheible/ss_ablation:${{  github.sha  }}
+          docker push -a ghcr.io/henryscheible/plmbias
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - 
-        name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Build, Test, and Push
-        run: | 
-          docker build -t ghcr.io/henryscheible/train:latest -t ghcr.io/henryscheible/train:${{  github.sha  }} ./experiments/train
-          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm ghcr.io/henryscheible/train:latest
-          docker push ghcr.io/henryscheible/train:latest
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          context: ./experiments/train
-          push: true
-          tags: ${{  env.PUSH_TAGS  }}
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/train:latest
+          docker push -a ghcr.io/henryscheible/train
+
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/shapley:latest
+          docker push -a ghcr.io/henryscheible/shapley
+
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/ablation:latest
+          docker push -a ghcr.io/henryscheible/ablation
+          docker push -a ghcr.io/henryscheible/ss_ablation
