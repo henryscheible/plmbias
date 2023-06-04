@@ -1,6 +1,6 @@
 from datasets import load_dataset
 from plmbias.datasets import StereotypeDataset
-
+from retry.api import retry_call
 
 class Stereoset(StereotypeDataset):
 
@@ -21,7 +21,7 @@ class Stereoset(StereotypeDataset):
                 "context": contexts
             }
 
-        dataset = load_dataset("stereoset", "intersentence")['validation']
+        dataset = retry_call(load_dataset, fargs=["stereoset", "intersentence"], tries=20, delay=2)['validation']
 
         def tokenize(example):
             return self.tokenizer(example["context"], example["sentence"], truncation=True, padding=True)

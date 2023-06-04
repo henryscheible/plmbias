@@ -6,11 +6,12 @@ import numpy as np
 import evaluate
 
 from plmbias.datasets import StereotypeDataset
+from retry.api import retry_call
 
 
 class CrowsPairs(StereotypeDataset):
     def process(self):
-        dataset = load_dataset("crows_pairs")['test']
+        dataset = retry_call(load_dataset, fargs=["crows_pairs"], tries=20, delay=2)['test']
 
         def add_label(example):
             if example["label"] == 1:

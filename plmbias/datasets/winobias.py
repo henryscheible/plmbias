@@ -4,6 +4,8 @@ from transformers import DataCollatorWithPadding
 
 from plmbias.datasets import StereotypeDataset
 
+from retry.api import retry_call
+
 
 class Winobias(StereotypeDataset):
 
@@ -20,19 +22,19 @@ def load_winobias():
         "test": None
     }
     for split in ["validation", "test"]:
-        type1_pro = load_dataset("wino_bias", "type1_pro")[split]
+        type1_pro = retry_call(load_dataset, fargs=["wino_bias", "type1_pro"], tries=20, delay=2)[split]
         new_column = [1] * len(type1_pro)
         type1_pro = type1_pro.add_column("label", new_column)
 
-        type2_pro = load_dataset("wino_bias", "type2_pro")[split]
+        type2_pro = retry_call(load_dataset, fargs=["wino_bias", "type2_pro"], tries=20, delay=2)[split]
         new_column = [1] * len(type2_pro)
         type2_pro = type2_pro.add_column("label", new_column)
 
-        type1_anti = load_dataset("wino_bias", "type1_anti")[split]
+        type1_anti = retry_call(load_dataset, fargs=["wino_bias", "type1_anti"], tries=20, delay=2)[split]
         new_column = [0] * len(type1_anti)
         type1_anti = type1_anti.add_column("label", new_column)
 
-        type2_anti = load_dataset("wino_bias", "type2_anti")[split]
+        type2_anti = retry_call(load_dataset, fargs=["wino_bias", "type2_anti"], tries=20, delay=2)[split]
         new_column = [0] * len(type2_anti)
         type2_anti = type2_anti.add_column("label", new_column)
 
