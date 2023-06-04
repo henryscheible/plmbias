@@ -124,7 +124,6 @@ else:
 
 model_env.has_evaled = False
 
-
 data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
 print("")
