@@ -74,7 +74,7 @@ jobs:
           cache-to: type=inline
   plmbias:
     needs: [changes, plmbias-deps]
-    if: always() && needs.plmbias-deps.result != 'failure' && ( needs.changes.outputs.plmbias == 'true' || needs.plmbias-deps.result = 'success')
+    if: always() && needs.plmbias-deps.result != 'failure' && ( needs.changes.outputs.plmbias == 'true' || needs.changes.outputs.plmbias-deps == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
