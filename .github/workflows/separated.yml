@@ -31,6 +31,7 @@ jobs:
         filters: |
           plmbias:
             - 'plmbias/**'
+            - 'Dockerfile'
           plmbias-deps:
             - 'deps_image/**'
           train:
@@ -66,14 +67,14 @@ jobs:
       - name: Build and export
         uses: docker/build-push-action@v4
         with:
-          context: .
-          tags: ghcr.io/henryscheible/plmbias:latest, ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          context: ./deps_image
+          tags: ghcr.io/henryscheible/plmbias-deps:latest, ghcr.io/henryscheible/plmbias-deps:${{  github.sha  }}
           push: true
           cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
           cache-to: type=inline
   plmbias:
     needs: [changes, plmbias-deps]
-    if: always() && needs.plmbias-deps.result != 'failure' && needs.changes.outputs.plmbias == 'true'
+    if: always() && needs.plmbias-deps.result != 'failure' && ( needs.changes.outputs.plmbias == 'true' || needs.plmbias-deps.result = 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
