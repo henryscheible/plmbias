@@ -91,6 +91,7 @@ training_args = TrainingArguments(
     num_train_epochs=10 if not is_test else 1,
     log_level="debug",
     load_best_model_at_end=True,
+    save_total_limit=1,
     metric_for_best_model="accuracy",
     logging_steps=10,
     learning_rate=5e-4 if "t5" in name else 5e-5,
