@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import evaluate
 
 from plmbias.datasets import StereotypeDataset
 from plmbias.models.base import ModelEnvironment
@@ -15,6 +16,7 @@ class GenerativeEnvironment(ModelEnvironment):
         self.model_id = hf_model_id
         self.model = T5ForConditionalGeneration.from_pretrained(hf_model_id)
         self.tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
+        self.acc = evaluate.load("accuracy")
 
     def get_classifieronly_params(self):
         return self.model.decoder.parameters()
@@ -34,12 +36,12 @@ class GenerativeEnvironment(ModelEnvironment):
             for label, pred in zip(binary_labels, predictions):
                 confusion_matrix[label, pred] += 1
             return {
-                "accuracy": np.sum(predictions == binary_labels) / float(len(binary_labels)),
+                "cmatrix_accuracy": np.sum(predictions == binary_labels) / float(len(binary_labels)),
                 "tp": confusion_matrix[1, 1] / float(len(binary_labels)),
                 "tn": confusion_matrix[0, 0] / float(len(binary_labels)),
                 "fp": confusion_matrix[0, 1] / float(len(binary_labels)),
                 "fn": confusion_matrix[1, 0] / float(len(binary_labels)),
-            }
+            }.update(self.acc.compute(references=binary_labels, predictions=predictions))
 
         return compute_metrics
 
