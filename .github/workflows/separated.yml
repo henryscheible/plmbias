@@ -70,7 +70,7 @@ jobs:
           cache-to: type=inline
   train:
     needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.train == 'true'
+    if: always() && needs.plmbias.result != 'failure'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -103,7 +103,7 @@ jobs:
           docker push ghcr.io/henryscheible/${{  github.job  }}:latest
   shapley:
     needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    if: always() && needs.plmbias.result != 'failure'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -136,7 +136,7 @@ jobs:
           docker push ghcr.io/henryscheible/${{  github.job  }}:latest
   ablation:
     needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    if: always() && needs.plmbias.result != 'failure'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -169,7 +169,7 @@ jobs:
           docker push ghcr.io/henryscheible/${{  github.job  }}:latest
   ss_ablation:
     needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    if: always() && needs.plmbias.result != 'failure'
     runs-on: ubuntu-latest
     permissions:
       contents: read
