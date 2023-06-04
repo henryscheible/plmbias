@@ -70,7 +70,7 @@ jobs:
           cache-to: type=inline
   train:
     needs: [changes, plmbias]
-    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.train == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

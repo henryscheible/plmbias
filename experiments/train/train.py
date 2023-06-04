@@ -100,6 +100,7 @@ training_args = TrainingArguments(
     run_name=group
 )
 
+
 print(training_args.device)
 
 model = model_env.get_model()
