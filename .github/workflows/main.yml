@@ -1,4 +1,4 @@
-name: ghcr_ci
+name: legacy_ci
 
 on:
   push:

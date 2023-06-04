@@ -1,0 +1,202 @@
+name: build_images
+
+on:
+  push:
+    branches: [main]
+  
+
+env:
+  REGISTRY: ghcr.io
+  TEST_TAG: train:test
+  PUSH_TAGS: ghcr.io/henryscheible/train:latest, ghcr.io/henryscheible/train:${{  github.sha  }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      plmbias: ${{  steps.filter.outputs.plmbias  }}
+      train: ${{  steps.filter.outputs.train  }}
+      shapley: ${{  steps.filter.outputs.shapley  }}
+      ablation: ${{  steps.filter.outputs.ablation  }}
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v1
+    - name: Check for changes
+      uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          plmbias:
+            - 'plmbias/**'
+          train:
+            - 'experiments/train/**'
+          shapley:
+            - 'experiments/shapley/**'
+          ablation:
+            - 'experiments/ablation/**'
+  plmbias:
+    needs: changes
+    if: ${{  needs.changes.outputs.plmbias == 'true'  }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build and export
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          tags: ghcr.io/henryscheible/plmbias:latest, ghcr.io/henryscheible/plmbias:${{  github.sha  }}
+          push: true
+          cache-from: type=registry,ref=ghcr.io/henryscheible/plmbias:latest
+          cache-to: type=inline
+  train:
+    needs: [changes, plmbias]
+    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build
+        run: | 
+          docker build ./experiments/${{  github.job  }} -t henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:${{  github.sha  }}
+      - name: Test
+        run: |    
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
+      - name: Push
+        run: |   
+          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+  shapley:
+    needs: [changes, plmbias]
+    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build
+        run: | 
+          docker build ./experiments/${{  github.job  }} -t henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:${{  github.sha  }}
+      - name: Test
+        run: |    
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
+      - name: Push
+        run: |   
+          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+  ablation:
+    needs: [changes, plmbias]
+    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build
+        run: | 
+          docker build ./experiments/${{  github.job  }} -t henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:${{  github.sha  }}
+      - name: Test
+        run: |    
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
+      - name: Push
+        run: |   
+          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+  ss_ablation:
+    needs: [changes, plmbias]
+    if: always() && needs.plmbias.result != 'failure' && needs.changes.outputs.${{  github.job  }} == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Build
+        run: | 
+          docker build ./experiments/${{  github.job  }} -t henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:latest -t ghcr.io/henryscheible/${{  github.job  }}:${{  github.sha  }}
+      - name: Test
+        run: |    
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
+      - name: Push
+        run: |   
+          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
