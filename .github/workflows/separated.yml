@@ -100,7 +100,7 @@ jobs:
           docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
       - name: Push
         run: |   
-          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+          docker push -a ghcr.io/henryscheible/${{  github.job  }}
   shapley:
     needs: [changes, plmbias]
     if: always() && needs.plmbias.result != 'failure'
@@ -133,7 +133,7 @@ jobs:
           docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
       - name: Push
         run: |   
-          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+          docker push -a ghcr.io/henryscheible/${{  github.job  }}
   ablation:
     needs: [changes, plmbias]
     if: always() && needs.plmbias.result != 'failure'
@@ -166,7 +166,7 @@ jobs:
           docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
       - name: Push
         run: |   
-          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+          docker push -a ghcr.io/henryscheible/${{  github.job  }}
   ss_ablation:
     needs: [changes, plmbias]
     if: always() && needs.plmbias.result != 'failure'
@@ -199,4 +199,4 @@ jobs:
           docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm henryscheible/${{  github.job  }}:latest
       - name: Push
         run: |   
-          docker push ghcr.io/henryscheible/${{  github.job  }}:latest
+          docker push -a ghcr.io/henryscheible/${{  github.job  }}
