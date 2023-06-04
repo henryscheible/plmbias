@@ -115,7 +115,6 @@ trainer = Trainer(
 
 trainer.train()
 
-
 artifact = wandb.Artifact(name=f"model-{group}", type="model")
 
 trainer.save_model(f"/model")

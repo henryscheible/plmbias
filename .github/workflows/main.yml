@@ -92,15 +92,11 @@ jobs:
       - 
         name: Checkout Code
         uses: actions/checkout@v3
-      - name: Build and export
-        uses: docker/build-push-action@v4
-        with:
-          context: ./experiments/train
-          load: true
-          tags: ${{  env.TEST_TAG  }}
-      - name: Test
+      - name: Build, Test, and Push
         run: | 
-          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm train:test
+          docker build -t ghcr.io/henryscheible/train:latest -t ghcr.io/henryscheible/train:${{  github.sha  }} ./experiments/train
+          docker run -e IS_TEST=true -e WANDB_API_KEY=${{ secrets.WANDB_TOKEN }} --rm ghcr.io/henryscheible/train:latest
+          docker push ghcr.io/henryscheible/train:latest
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
