@@ -103,7 +103,7 @@ checkpoint = os.environ.get("CHECKPOINT")
 dataset = os.environ.get("DATASET")
 source = os.environ.get("SOURCE")
 
-run = wandb.init(project="plmbias", name=f"{checkpoint}_contribs")
+run = wandb.init(project="plmbias-test", name=f"{checkpoint}_contribs")
 
 if source == "wandb":
     artifact_name = f"model-{checkpoint}:latest"
