@@ -13,19 +13,20 @@ from torch import nn
 from transformers import Trainer, DataCollatorWithPadding, TrainingArguments
 
 from plmbias.datasets import StereotypeDataset
-from plmbias.models import ModelEnvironment
+from plmbias.models import ModelEnvironment, GenerativeTrainer
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 os.environ["WANDB_MODE"] = "online"
 
 is_test = os.environ.get("IS_TEST") == "true"
+is_test = True
 
 if is_test:
     os.environ["MODEL"] = "t5-small"
     os.environ["DATASET"] = "stereoset"
     os.environ["TRAIN_TYPE"] = "finetuned"
-    os.environ["LEARNING_RATE"] = "5e-4"
+    os.environ["LEARNING_RATE"] = "0"
     os.environ["MODEL_TYPE"] = "generative"
 
 config = dict()
@@ -105,7 +106,7 @@ print(training_args.device)
 
 model = model_env.get_model()
 
-trainer = Trainer(
+trainer = GenerativeTrainer(
     model,
     training_args,
     train_dataset=dataset.get_train_split(),

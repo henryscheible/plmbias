@@ -3,3 +3,4 @@ __pycache__/
 *.pdf
 results_bin/
 visualizations/results/
+*.egg-info

@@ -1,7 +1,7 @@
 from .base import ModelEnvironment
 from .causal import CausalLMEnvironment
 from .classifier import SequenceClassificationEnvironment
-from .generative import GenerativeEnvironment
+from .generative import GenerativeEnvironment, GenerativeTrainer
 
 model_classes = {
     "bert-base-uncased": SequenceClassificationEnvironment,
