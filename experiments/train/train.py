@@ -32,10 +32,12 @@ config = dict()
 
 rand_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-transformers.set_seed(42)
-np.random.seed(42)
-torch.manual_seed(42)
-random.seed(42)
+seed = os.environ.get("SEED") if os.environ.get("SEED") is not None else 42
+
+transformers.set_seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+random.seed(seed)
 torch.use_deterministic_algorithms(True)
 transformers.enable_full_determinism(42)
 
