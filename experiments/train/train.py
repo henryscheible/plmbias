@@ -105,7 +105,7 @@ print(training_args.device)
 
 model = model_env.get_model()
 
-trainer = GenerativeTrainer(
+trainer = Trainer(
     model,
     training_args,
     train_dataset=dataset.get_train_split(),
