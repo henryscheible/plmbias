@@ -31,7 +31,9 @@ class GenerativeEnvironment(ModelEnvironment):
             false_logit = logits[0][:, 1, false_label_id]
             binary_logits = np.stack([false_logit, true_logit], axis=-1)
             predictions = np.argmax(binary_logits, axis=-1)
+            print(predictions.shape)
             binary_labels = np.array(list(map(lambda label: 0 if label[0] == false_label_id else 1, labels)))
+            print(binary_labels.shape)
             confusion_matrix = np.zeros((2, 2))
             for label, pred in zip(binary_labels, predictions):
                 confusion_matrix[label, pred] += 1
