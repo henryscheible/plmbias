@@ -32,7 +32,7 @@ config = dict()
 
 rand_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-seed = os.environ.get("SEED") if os.environ.get("SEED") is not None else 42
+seed = int(os.environ.get("SEED")) if os.environ.get("SEED") is not None else 42
 
 transformers.set_seed(seed)
 np.random.seed(seed)
