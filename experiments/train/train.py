@@ -48,6 +48,7 @@ model_type = os.environ.get("MODEL_TYPE")
 group = f"{hf_model_id.replace('/', '-')}_{dataset}_{train_type}"
 name = f"{group}_{rand_id}"
 run = wandb.init(name=group, project="plmbias" if not is_test else "plmbias-test", group="train")
+num_train_epochs = int(os.environ.get("EPOCHS")) if os.environ.get("EPOCHS") is not None else 20
 wandb.define_metric("eval/accuracy", summary="max")
 
 if model_type == "generative":
