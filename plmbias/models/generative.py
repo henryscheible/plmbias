@@ -51,12 +51,12 @@ class GenerativeEnvironment(ModelEnvironment):
             for label, pred in zip(binary_labels, predictions):
                 confusion_matrix[label, pred] += 1
             return {
-                "cmatrix_accuracy": np.sum(predictions == binary_labels) / float(len(binary_labels)),
+                "accuracy": np.sum(predictions == binary_labels) / float(len(binary_labels)),
                 "tp": confusion_matrix[1, 1] / float(len(binary_labels)),
                 "tn": confusion_matrix[0, 0] / float(len(binary_labels)),
                 "fp": confusion_matrix[0, 1] / float(len(binary_labels)),
                 "fn": confusion_matrix[1, 0] / float(len(binary_labels)),
-            }.update(self.acc.compute(references=binary_labels, predictions=predictions))
+            }
 
         return compute_metrics
 
