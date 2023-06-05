@@ -17,9 +17,7 @@ from plmbias.models import ModelEnvironment, GenerativeTrainer
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-
 is_test = os.environ.get("IS_TEST") == "true"
-is_test = True
 
 os.environ["WANDB_MODE"] = "offline" if is_test else "online"
 
