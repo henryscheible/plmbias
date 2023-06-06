@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from transformers import DataCollatorForSeq2Seq
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
-import tqdm as tqdm
+from tqdm import tqdm
 import wandb
 
 from datasets import disable_caching
