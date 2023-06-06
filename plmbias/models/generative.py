@@ -21,7 +21,6 @@ def nested_detach(tensors):
         return type(tensors)({k: nested_detach(t) for k, t in tensors.items()})
     return tensors.detach()
 
-
 class GenerativeEnvironment(ModelEnvironment):
     def __init__(self, hf_model_id: str):
         super().__init__()

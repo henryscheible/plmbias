@@ -17,7 +17,6 @@ from datasets import disable_caching
 disable_caching()
 
 is_test = os.environ.get("IS_TEST") == "true"
-is_test = True
 
 if is_test:
     os.environ["CHECKPOINT"] = "t5-small_stereoset_finetuned"
