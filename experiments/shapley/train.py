@@ -12,10 +12,22 @@ from transformers import DataCollatorForSeq2Seq
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 from tqdm import tqdm
+import datetime
 import wandb
 
 from datasets import disable_caching
 disable_caching()
+
+class EtaStream(object):
+    def __init__(self):
+        self.eta = 0
+    def write(self, bar):
+        try:
+            eta = bar.split('<')[-1].split(',')[0].split(':')[::-1]
+            self.eta = sum(60**i * int(e) for (i, e) in enumerate(eta))
+            wandb.log({"eta": datetime.timedelta(seconds=self.eta)})
+        except:
+            pass
 
 is_test = os.environ.get("IS_TEST") == "true"
 
@@ -49,9 +61,9 @@ def attribute_factory(model, eval_dataloader, portion = None):
             model_env.has_evaled = True
         progress.update()
         fmt_dict = progress.format_dict
+        print(fmt_dict)
         wandb.log({
             "progress": float(fmt_dict['n'])/float(fmt_dict['total']),
-            "eta": fmt_dict["eta"]
         })
         return metric.compute()["accuracy"]
 
@@ -70,7 +82,7 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
 
     if model_is_generative:
         dec_mask = torch.ones(model_env.get_mask_shape_decoder()).to(device).flatten().unsqueeze(0)
-        progress = tqdm(total=num_samples * (len(mask.flatten().detach())+len(dec_mask.flatten().detach())))
+        progress = tqdm(total=num_samples * (len(mask.flatten().detach())+len(dec_mask.flatten().detach())), file=EtaStream())
         enc_attribute = attribute_factory(model, eval_dataloader, portion="encoder")
         dec_attribute = attribute_factory(model, eval_dataloader, portion="decoder")
         with torch.no_grad():
