@@ -48,7 +48,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
         if is_test:
             model_env.has_evaled = True
         progress.update()
-        fmt_dict = progress.format_dict()
+        fmt_dict = progress.format_dict
         wandb.log({
             "progress": float(fmt_dict['n'])/float(fmt_dict['total']),
             "eta": fmt_dict["eta"]
