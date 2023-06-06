@@ -105,7 +105,7 @@ class GenerativeEnvironment(ModelEnvironment):
         shape = self.get_mask_shape()
         decoder_shape = self.get_mask_shape_decoder()
 
-        batch_size = len(eval_batch)
+        batch_size = len(eval_batch["input_ids"])
         pad_token_id = self.model.config.pad_token_id
         decoder_input_ids = torch.tensor([[pad_token_id]] * batch_size).to(self.model.device)
         eval_batch["decoder_input_ids"] = decoder_input_ids

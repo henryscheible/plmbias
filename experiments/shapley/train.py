@@ -8,7 +8,7 @@ from captum.attr import ShapleyValueSampling
 import json
 from huggingface_hub import HfApi
 from torch.utils.data import DataLoader
-from transformers import DataCollatorWithPadding
+from transformers import DataCollatorForSeq2Seq
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 import wandb
@@ -17,6 +17,7 @@ from datasets import disable_caching
 disable_caching()
 
 is_test = os.environ.get("IS_TEST") == "true"
+is_test = True
 
 if is_test:
     os.environ["CHECKPOINT"] = "t5-small_stereoset_finetuned"
@@ -38,7 +39,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
         for eval_batch in eval_dataloader:
             eval_batch = {k: v.to(device) for k, v in eval_batch.items()}
             if portion == "encoder":
-                model_env.evaluate_batch(eval_batch, metric, encoder_mask = mask, decoder_mask = torch.ones(model_env.get_mask_shape_decoder()).to(device))
+                model_env.evaluate_batch(eval_batch, metric, encoder_mask = mask, decoder_mask = torch.ones(model_env.get_mask_shape_decoder()).flatten().to(device))
             elif portion == "decoder":
                 model_env.evaluate_batch(eval_batch, metric, decoder_mask = mask, encoder_mask = torch.ones(model_env.get_mask_shape()).to(device))
             else:
@@ -118,7 +119,7 @@ else:
 if "t5" in artifact_name:
     model_is_generative = True
     model_env = ModelEnvironment.from_pretrained_generative(model_dir)
-    dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
+    dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer(), is_generative=True)
     model_env.setup_dataset(dataset)
 else:
     model_is_generative = False
@@ -127,7 +128,7 @@ else:
 
 model_env.has_evaled = False
 
-data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
+data_collator = DataCollatorForSeq2Seq(model_env.get_tokenizer(), padding=True, max_length=100)
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
 print("")
 num_samples = os.environ.get("SAMPLES")
