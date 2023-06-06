@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from transformers import DataCollatorForSeq2Seq
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
+import tqdm as tqdm
 import wandb
 
 from datasets import disable_caching
@@ -25,6 +26,7 @@ if is_test:
     os.environ["SAMPLES"] = "1"
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 
 def attribute_factory(model, eval_dataloader, portion = None):
     def attribute(mask):
@@ -45,6 +47,12 @@ def attribute_factory(model, eval_dataloader, portion = None):
                 model_env.evaluate_batch(eval_batch, metric, mask)
         if is_test:
             model_env.has_evaled = True
+        progress.update()
+        fmt_dict = progress.format_dict()
+        wandb.log({
+            "progress": float(fmt_dict['n'])/float(fmt_dict['total']),
+            "eta": fmt_dict["eta"]
+        })
         return metric.compute()["accuracy"]
 
     return attribute
@@ -62,6 +70,7 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
 
     if model_is_generative:
         dec_mask = torch.ones(model_env.get_mask_shape_decoder()).to(device).flatten().unsqueeze(0)
+        progress = tqdm(total=num_samples * (len(mask.flatten().detach())+len(dec_mask.flatten().detach())))
         enc_attribute = attribute_factory(model, eval_dataloader, portion="encoder")
         dec_attribute = attribute_factory(model, eval_dataloader, portion="decoder")
         with torch.no_grad():
@@ -108,6 +117,10 @@ source = os.environ.get("SOURCE")
 
 run = wandb.init(project=("plmbias-test" if is_test else "plmbias"), name=f"{checkpoint}_contribs")
 
+wandb.define_metric("progress", summary="max")
+wandb.define_metric("eta", summary="min")
+
+
 if source == "wandb":
     artifact_name = f"model-{checkpoint}:latest"
     artifact = run.use_artifact(artifact_name)
@@ -126,6 +139,7 @@ else:
     dataset = StereotypeDataset.from_name(dataset, model_env.get_tokenizer())
 
 model_env.has_evaled = False
+
 
 data_collator = DataCollatorForSeq2Seq(model_env.get_tokenizer(), padding=True, max_length=100)
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
