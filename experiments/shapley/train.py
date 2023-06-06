@@ -29,7 +29,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 
 def attribute_factory(model, eval_dataloader, portion = None):
-    def attribute(mask):
+    def attribute(mask, progress):
         print(f"PORTION: {portion}")
         if is_test:
             if model_env.has_evaled:
@@ -78,13 +78,15 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
             sv = ShapleyValueSampling(enc_attribute)
             enc_attribution = sv.attribute(
                 mask, n_samples=num_samples, show_progress=True,
-                perturbations_per_eval=num_perturbations_per_eval
+                perturbations_per_eval=num_perturbations_per_eval,
+                additional_forward_args=progress
             )
             model_env.has_evaled = False
             sv = ShapleyValueSampling(dec_attribute)
             dec_attribution = sv.attribute(
                 dec_mask, n_samples=num_samples, show_progress=True,
-                perturbations_per_eval=num_perturbations_per_eval
+                perturbations_per_eval=num_perturbations_per_eval,
+                additional_forward_args=progress
             )
         print("ENC CONTRIBS")
         print(enc_attribution)
