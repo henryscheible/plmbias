@@ -1,3 +1,4 @@
+from math import floor
 import os
 
 import evaluate
@@ -22,12 +23,18 @@ class EtaStream(object):
     def __init__(self):
         self.eta = 0
     def write(self, bar):
+        eta = bar.split('<')[-1].split(',')[0].split(':')[::-1]
         try:
-            eta = bar.split('<')[-1].split(',')[0].split(':')[::-1]
             self.eta = sum(60**i * int(e) for (i, e) in enumerate(eta))
-            wandb.log({"eta": datetime.timedelta(seconds=self.eta)})
         except:
             pass
+        seconds = self.eta
+        wandb.log({
+            "h": floor(float(seconds) / float(3600)),
+            "min": floor(float(seconds % 3600) / float(60)),
+            "s": seconds % 60,
+        })
+        
 
 is_test = os.environ.get("IS_TEST") == "true"
 
@@ -58,6 +65,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
             else:
                 model_env.evaluate_batch(eval_batch, metric, mask)
         if is_test:
+            # pass
             model_env.has_evaled = True
         progress.update()
         fmt_dict = progress.format_dict
