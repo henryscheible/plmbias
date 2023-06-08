@@ -23,8 +23,9 @@ if is_test:
 
 contribs_name = os.environ["CONTRIBS"]
 dataset_name = os.environ["DATASET"]
+portion = os.environ["PORTION"]
 
-run = wandb.init(project="plmbias", name=f"{contribs_name}_ablation")
+run = wandb.init(project="plmbias" if not is_test else "plmbias-test", name=f"{contribs_name}_ablation")
 
 def get_positive_mask(contribs):
     ret = []
@@ -108,24 +109,24 @@ def test_shapley(contribs, model_env, dataset, portion):
 
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=4096, collate_fn=data_collator)
-    base_acc = evaluate_model(eval_dataloader, model_env)
+    base_acc = evaluate_model(eval_dataloader, model_env, portion=portion)
 
     if not is_test:
         bottom_up_results = []
         for mask in tqdm(get_bottom_up_masks(contribs)):
-            bottom_up_results += [evaluate_model(eval_dataloader, model_env, mask=mask)]
+            bottom_up_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
 
         top_down_results = []
         for mask in tqdm(get_top_down_masks(contribs)):
-            top_down_results += [evaluate_model(eval_dataloader, model_env, mask=mask)]
+            top_down_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
 
         bottom_up_rev_results = []
         for mask in tqdm(get_bottom_up_masks_rev(contribs)):
-            bottom_up_rev_results += [evaluate_model(eval_dataloader, model_env, mask=mask)]
+            bottom_up_rev_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
 
         top_down_rev_results = []
         for mask in tqdm(get_top_down_masks_rev(contribs)):
-            top_down_rev_results += [evaluate_model(eval_dataloader, model_env, mask=mask)]
+            top_down_rev_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
 
         return {
             "base_acc": base_acc,
@@ -169,6 +170,6 @@ print(results)
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
 
-results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_ablation", type="ablation_results")
+results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_{portion}_ablation", type="ablation_results")
 results_artifact.add_file(local_path="results.json")
 run.log_artifact(results_artifact)

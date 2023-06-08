@@ -65,8 +65,8 @@ def attribute_factory(model, eval_dataloader, portion = None):
             else:
                 model_env.evaluate_batch(eval_batch, metric, mask)
         if is_test:
-            # pass
-            model_env.has_evaled = True
+            pass
+            # model_env.has_evaled = True
         progress.update()
         fmt_dict = progress.format_dict
         print(fmt_dict)
