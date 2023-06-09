@@ -102,7 +102,9 @@ def evaluate_model(eval_loader, model_env, portion=None, mask=None):
             model_env.evaluate_batch(eval_batch, metric, decoder_mask=mask)
         else:
             model_env.evaluate_batch(eval_batch, mask, metric)
+        print("finished batch")
         if is_test:
+            print("breaking:")
             break
 
     return float(metric.compute()["accuracy"])
@@ -118,18 +120,26 @@ def test_shapley(contribs, model_env, dataset, portion):
     bottom_up_results = []
     for mask in tqdm(get_bottom_up_masks(contribs)):
         bottom_up_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
+        if is_test:
+            break
 
     top_down_results = []
     for mask in tqdm(get_top_down_masks(contribs)):
         top_down_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
+        if is_test:
+            break
 
     bottom_up_rev_results = []
     for mask in tqdm(get_bottom_up_masks_rev(contribs)):
         bottom_up_rev_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
+        if is_test:
+            break
 
     top_down_rev_results = []
     for mask in tqdm(get_top_down_masks_rev(contribs)):
         top_down_rev_results += [evaluate_model(eval_dataloader, model_env, portion=portion, mask=mask)]
+        if is_test:
+            break
 
     return {
         "base_acc": base_acc,
