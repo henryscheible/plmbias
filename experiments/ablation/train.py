@@ -20,12 +20,14 @@ is_test = os.environ.get("IS_TEST") == "true"
 if is_test:
     os.environ["CONTRIBS"] = "t5-small_stereoset_finetuned_contribs:latest"
     os.environ["DATASET"] = "stereoset"
+    os.environ["PORTION"] = "decoder"
 
 contribs_name = os.environ["CONTRIBS"]
+spec = "_".join(contribs_name.split("_")[:-1])
 dataset_name = os.environ["DATASET"]
 portion = os.environ["PORTION"]
 
-run = wandb.init(project="plmbias" if not is_test else "plmbias-test", name=f"{contribs_name}_ablation")
+run = wandb.init(project="plmbias" if not is_test else "plmbias-test", name=f"{spec}_ablation")
 
 def get_positive_mask(contribs):
     ret = []
@@ -142,13 +144,14 @@ def test_shapley(contribs, model_env, dataset, portion):
             "contribs": contribs,
         }
 
-contribs_artifact = run.use_artifact(contribs_name)
+project = "plmbias" if not is_test else "plmbias-test"
+contribs_artifact = run.use_artifact(f"{contribs_name}")
 contribs_dir = contribs_artifact.download()
 print(f"contribs_name: {contribs_name}, contribs_dir: {contribs_dir}")
-with open(os.path.join(contribs_dir, "contribs.txt"), "r") as f:
+with open(os.path.join(contribs_dir, f"{portion[:3]}_contribs.txt"), "r") as f:
     contribs = json.loads(f.read())
 api = wandb.Api()
-candidate_model_artifacts = filter(lambda x : x.type == "model", api.artifact(contribs_name).logged_by().used_artifacts())
+candidate_model_artifacts = filter(lambda x : x.type == "model", api.artifact(f"{project}/{contribs_name}").logged_by().used_artifacts())
 model_artifact = list(candidate_model_artifacts)[0]
 artifact_name = f"{model_artifact._project}/{model_artifact._artifact_name}"
 
@@ -163,7 +166,7 @@ else:
     model_env = ModelEnvironment.from_pretrained(model_dir)
     dataset = StereotypeDataset.from_name(dataset_name, model_env.get_tokenizer())
 
-results = test_shapley(contribs, model_env, dataset)
+results = test_shapley(contribs, model_env, dataset, portion)
 
 print(results)
 
