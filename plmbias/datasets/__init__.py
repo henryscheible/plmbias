@@ -2,11 +2,13 @@ from .base import StereotypeDataset
 from .winobias import Winobias
 from .crows_pairs import CrowsPairs
 from .stereoset import Stereoset
+from .implicit_bias import ImplicitBias
 
 name_to_subclass = {
     "crows_pairs": CrowsPairs,
     "stereoset": Stereoset,
-    "winobias": Winobias
+    "winobias": Winobias,
+    "implicit_bias": ImplicitBias
 }
 
 
