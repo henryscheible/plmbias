@@ -15,7 +15,7 @@ class ImplicitBias(StereotypeDataset):
         ])
         self.train_split = dataset["train"].map(tokenize, batched=True, batch_size=64,
                                                   remove_columns=["sentence"])
-        self.test_split = dataset["test"].map(tokenize, batched=True, batch_size=64,
+        self.eval_split = dataset["test"].map(tokenize, batched=True, batch_size=64,
                                                   remove_columns=["sentence"])
 
 

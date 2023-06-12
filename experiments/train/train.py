@@ -23,7 +23,7 @@ os.environ["WANDB_MODE"] = "online"
 
 if is_test:
     os.environ["MODEL"] = "t5-small"
-    os.environ["DATASET"] = "stereoset"
+    os.environ["DATASET"] = "implicit_bias"
     os.environ["TRAIN_TYPE"] = "finetuned"
     os.environ["LEARNING_RATE"] = "0"
     os.environ["MODEL_TYPE"] = "generative"

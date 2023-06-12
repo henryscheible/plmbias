@@ -14,7 +14,8 @@ setup(name="plmbias",
           'datasets',
           'evaluate',
           'sklearn',
-          'captum'
+          'captum',
+          'retry'
       ],
       packages=find_packages()
 )
