@@ -85,7 +85,7 @@ class SequenceClassificationEnvironment(ModelEnvironment):
         metric.add_batch(predictions=predictions, references=eval_batch["labels"])
 
     def get_classifieronly_params(self):
-        return model_to_params[self.model_id]
+        return list(map(lambda param: param[1], filter(lambda param: param[0] in model_to_params[self.model_id], self.model.named_parameters())))
 
     def setup_dataset(self, dataset):
         dataset.process()
