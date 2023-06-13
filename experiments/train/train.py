@@ -25,7 +25,7 @@ if is_test:
     os.environ["MODEL"] = "t5-small"
     os.environ["DATASET"] = "implicit_bias"
     os.environ["TRAIN_TYPE"] = "finetuned"
-    os.environ["LEARNING_RATE"] = "0"
+    os.environ["LEARNING_RATE"] = "5e-5"
     os.environ["MODEL_TYPE"] = "generative"
 
 config = dict()
@@ -85,13 +85,13 @@ else:
 training_args = TrainingArguments(
     group,
     evaluation_strategy="steps",
-    eval_steps=1 if is_test else 20,
+    eval_steps=20 if is_test else 20,
     save_strategy="steps",
     save_steps=20,
-    max_steps=1 if is_test else -1,
+    max_steps=-1 if is_test else -1,
     per_device_train_batch_size=32,
     per_device_eval_batch_size=32,
-    num_train_epochs=num_train_epochs if not is_test else 1,
+    num_train_epochs=num_train_epochs if not is_test else 20,
     log_level="debug",
     load_best_model_at_end=True,
     save_total_limit=1,

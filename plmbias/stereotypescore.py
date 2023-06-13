@@ -5,10 +5,12 @@ import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 from transformers import DataCollatorWithPadding
+from tqdm import tqdm
 
 
 class StereotypeScoreCalculator:
-    def __init__(self, intersentence_model_env, intersentence_tokenizer, intrasentence_model_env, intrasentence_tokenizer, device=None):
+    def __init__(self, intersentence_model_env, intersentence_tokenizer, intrasentence_model_env, intrasentence_tokenizer, device=None, is_generative=False):
+        self.is_generative = is_generative
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.intersentence_model = intersentence_model_env.get_model().to(self.device)
         self.intrasentence_model = intrasentence_model_env.get_model().to(self.device)
@@ -19,7 +21,9 @@ class StereotypeScoreCalculator:
         self.intersentence_tokenizer = intersentence_tokenizer
         self.intrasentence_tokenizer = intrasentence_tokenizer
         self.intersentence_splits = self._get_stereoset_intersentence()
-        self.intrasentence_splits = self._get_stereoset_intrasentence(intrasentence_tokenizer)
+        if self.is_generative:
+            self.decoder_mask = torch.ones(intersentence_model_env.get_mask_shape_decoder()).to(self.intersentence_model.device)
+        # self.intrasentence_splits = self._get_stereoset_intrasentence(intrasentence_tokenizer)
 
     def set_intersentence_model(self, model): 
         self.intersentence_model = model.to(self.device)
@@ -46,7 +50,14 @@ class StereotypeScoreCalculator:
                     }
 
         def tokenize_fn(example):
-            return self.intersentence_tokenizer(example["context"], example["sentence"], padding=True, truncation=True, return_tensors="pt")
+            if self.is_generative:
+                labels = self.intersentence_tokenizer(example["sentence"], padding=True, truncation=True, return_tensors="pt").input_ids
+                labels[labels == self.intersentence_tokenizer.pad_token_id] = -100
+                output = self.intersentence_tokenizer(example["context"], padding=True, truncation=True, return_tensors="pt")
+                output["labels"] = labels
+                return output
+            else:
+                return self.intersentence_tokenizer(example["context"], example["sentence"], padding=True, truncation=True, return_tensors="pt")
 
         negative_split_raw = intersentence_raw.map(lambda example: process_fn_split(example, 0), batched=False)
         positive_split_raw = intersentence_raw.map(lambda example: process_fn_split(example, 1), batched=False)
@@ -104,20 +115,25 @@ class StereotypeScoreCalculator:
         def process_split(split):
             split = split.remove_columns(["id", "target", "bias_type", "context", "sentences", "sentence", "label"])
             dataloader = DataLoader(
-                split, shuffle=False, batch_size=100, collate_fn=data_collator
+                split, shuffle=False, batch_size=1, collate_fn=data_collator
             )
             logits = list()
             self.intersentence_model.eval()
             for batch in dataloader:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
-                with torch.no_grad():
-                    outputs = self.intersentence_model(**batch, head_mask=self.intersentence_head_mask)
-                logits += [outputs.logits[:, 0]]
-            return torch.cat(logits)
+                if self.is_generative:
+                    with torch.no_grad():
+                        outputs = self.intersentence_model(**batch, head_mask=self.intersentence_head_mask, decoder_head_mask=self.decoder_mask)
+                    logits += [-1 * outputs.loss.item()]
+                else:
+                    with torch.no_grad():
+                        outputs = self.intersentence_model(**batch, head_mask=self.intersentence_head_mask)
+                    logits += [outputs.logits[:, 0]]
+            return logits
 
 
         processed_splits = list(map(process_split, list(splits)))
-        result = torch.stack(processed_splits, 1)
+        result = list(zip(*processed_splits))
         targets = splits[0]["target"]
         totals = defaultdict(float)
         pros = defaultdict(float)
@@ -218,7 +234,7 @@ class StereotypeScoreCalculator:
 
     def __call__(self):
         return {
-            # "intersentence": self._get_ss_intersentence(),
-            "intrasentence": self._get_ss_intrasentence()
+            "intersentence": self._get_ss_intersentence(),
+            # "intrasentence": self._get_ss_intrasentence()
         }
 
