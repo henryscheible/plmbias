@@ -9,7 +9,7 @@ from captum.attr import ShapleyValueSampling
 import json
 from huggingface_hub import HfApi
 from torch.utils.data import DataLoader
-from transformers import DataCollatorForSeq2Seq,
+from transformers import DataCollatorForSeq2Seq, DataCollatorWithPadding
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 from tqdm import tqdm
