@@ -9,7 +9,7 @@ from captum.attr import ShapleyValueSampling
 import json
 from huggingface_hub import HfApi
 from torch.utils.data import DataLoader
-from transformers import DataCollatorForSeq2Seq
+from transformers import DataCollatorForSeq2Seq,
 from plmbias.datasets import StereotypeDataset
 from plmbias.models import ModelEnvironment
 from tqdm import tqdm
@@ -162,8 +162,10 @@ else:
 
 model_env.has_evaled = False
 
-
-data_collator = DataCollatorForSeq2Seq(model_env.get_tokenizer(), padding=True, max_length=100)
+if model_is_generative:
+    data_collator = DataCollatorForSeq2Seq(model_env.get_tokenizer(), padding=True, max_length=100)
+else:
+    data_collator = DataCollatorWithPadding(model_env.get_tokenizer(), padding=True)
 eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=2048, collate_fn=data_collator)
 print("")
 num_samples = os.environ.get("SAMPLES")
