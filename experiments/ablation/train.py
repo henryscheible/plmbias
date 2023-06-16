@@ -180,14 +180,19 @@ print(results)
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
 
-results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_{portion}_ablation", type="ablation_results")
-results_artifact.add_file(local_path="results.json")
-shapes = {
-    "encoder": list(model_env.get_mask_shape()),
-    "decoder": list(model_env.get_mask_shape_decoder())
-}
-with open("shapes.json", "w") as file:
-    file.write(json.dumps(shapes))
+if "t5" in artifact_name:
+    results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_{portion}_ablation", type="ablation_results")
+    results_artifact.add_file(local_path="results.json")
+    shapes = {
+        "encoder": list(model_env.get_mask_shape()),
+        "decoder": list(model_env.get_mask_shape_decoder())
+    }
+    with open("shapes.json", "w") as file:
+        file.write(json.dumps(shapes))
 
-results_artifact.add_file(local_path="shapes.json")
-run.log_artifact(results_artifact)
+    results_artifact.add_file(local_path="shapes.json")
+    run.log_artifact(results_artifact)
+else:
+    results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_ablation", type="ablation_results")
+    results_artifact.add_file(local_path="results.json")
+    run.log_artifact(results_artifact)
