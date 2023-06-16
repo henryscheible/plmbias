@@ -145,7 +145,7 @@ wandb.define_metric("eta", summary="min")
 
 
 if source == "wandb":
-    artifact_name = f"model-{checkpoint}:latest"
+    artifact_name = f"model-{checkpoint}:best"
     artifact = run.use_artifact(artifact_name)
     model_dir = artifact.download()
 else:
