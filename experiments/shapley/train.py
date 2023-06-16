@@ -63,7 +63,7 @@ def attribute_factory(model, eval_dataloader, portion = None):
             elif portion == "decoder":
                 model_env.evaluate_batch(eval_batch, metric, decoder_mask = mask, encoder_mask = torch.ones(model_env.get_mask_shape()).to(device))
             else:
-                model_env.evaluate_batch(eval_batch, metric, mask)
+                model_env.evaluate_batch(eval_batch, mask, metric)
         if is_test:
             model_env.has_evaled = True
         progress.update()
