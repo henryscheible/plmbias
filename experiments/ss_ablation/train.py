@@ -181,6 +181,6 @@ print(results)
 with open("results.json", "a") as file:
     file.write(json.dumps(results))
 
-results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_{portion}_ss_ablation", type="ss_ablation_results")
+results_artifact = wandb.Artifact(name=f"{model_artifact._artifact_collection_name}_ss_ablation", type="ss_ablation_results")
 results_artifact.add_file(local_path="results.json")
 run.log_artifact(results_artifact)
