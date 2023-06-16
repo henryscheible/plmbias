@@ -118,6 +118,7 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
         with open("dec_contribs.txt", "w") as file:
             file.write(json.dumps(dec_attribution.flatten().tolist()))
     else:
+        progress = tqdm(total=num_samples * len(mask.flatten().detach()), file=EtaStream())
         with torch.no_grad():
             model.eval()
             sv = ShapleyValueSampling(attribute)
