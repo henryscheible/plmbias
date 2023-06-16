@@ -23,8 +23,8 @@ os.environ["WANDB_MODE"] = "online"
 
 if is_test:
     os.environ["MODEL"] = "bert-base-uncased"
-    os.environ["DATASET"] = "implicit_bias"
-    os.environ["TRAIN_TYPE"] = "classifieronly"
+    os.environ["DATASET"] = "stereoset"
+    os.environ["TRAIN_TYPE"] = "finetuned"
     os.environ["LEARNING_RATE"] = "5e-5"
     os.environ["MODEL_TYPE"] = "classifier"
 

@@ -8,11 +8,15 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 model_to_params = {
     "bert-base-uncased": [
         "classifier.weight",
-        "classifier.bias"
+        "classifier.bias",
+        "bert.pooler.dense.weight",
+        "bert.pooler.dense.bias"
     ],
     "bert-large-uncased": [
         "classifier.weight",
-        "classifier.bias"
+        "classifier.bias",
+        "bert.pooler.dense.weight",
+        "bert.pooler.dense.bias"
     ],
     "roberta-base": [
         "classifier.dense.weight",

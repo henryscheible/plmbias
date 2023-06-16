@@ -123,7 +123,8 @@ def get_shapley(eval_dataloader, model_env, num_samples=250, num_perturbations_p
             sv = ShapleyValueSampling(attribute)
             attribution = sv.attribute(
                 mask, n_samples=num_samples, show_progress=True,
-                perturbations_per_eval=num_perturbations_per_eval
+                perturbations_per_eval=num_perturbations_per_eval,
+                additional_forward_args=progress
             )
 
         print(attribution)
