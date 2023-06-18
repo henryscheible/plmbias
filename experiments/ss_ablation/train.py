@@ -161,8 +161,12 @@ project = "plmbias" if not is_test else "plmbias-test"
 contribs_artifact = run.use_artifact(f"{contribs_name}")
 contribs_dir = contribs_artifact.download()
 print(f"contribs_name: {contribs_name}, contribs_dir: {contribs_dir}")
-with open(os.path.join(contribs_dir, f"enc_contribs.txt"), "r") as f:
-    contribs = json.loads(f.read())
+if "t5" in contribs_name:
+    with open(os.path.join(contribs_dir, f"enc_contribs.txt"), "r") as f:
+        contribs = json.loads(f.read())
+else:
+    with open(os.path.join(contribs_dir, f"contribs.txt"), "r") as f:
+        contribs = json.loads(f.read())
 api = wandb.Api()
 candidate_model_artifacts = filter(lambda x : x.type == "model", api.artifact(f"{project}/{contribs_name}").logged_by().used_artifacts())
 model_artifact = list(candidate_model_artifacts)[0]
