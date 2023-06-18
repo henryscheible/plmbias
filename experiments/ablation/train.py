@@ -115,7 +115,7 @@ def test_shapley(contribs, model_env, dataset, portion):
 
     data_collator = DataCollatorWithPadding(model_env.get_tokenizer())
     eval_dataloader = DataLoader(dataset.get_eval_split(), shuffle=True, batch_size=4096, collate_fn=data_collator)
-    base_acc = evaluate_model(eval_dataloader, model_env, portion=portion, mask=)
+    base_acc = evaluate_model(eval_dataloader, model_env, portion=portion)
 
     bottom_up_results = []
     for mask in tqdm(get_bottom_up_masks(contribs)):
