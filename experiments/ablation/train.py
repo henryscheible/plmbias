@@ -178,6 +178,7 @@ if "t5" in artifact_name:
 else:
     with open(os.path.join(contribs_dir, f"contribs.txt"), "r") as f:
         contribs = json.loads(f.read())
+    portion=None
 
 results = test_shapley(contribs, model_env, dataset, portion)
 
