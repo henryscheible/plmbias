@@ -83,7 +83,10 @@ class SequenceClassificationEnvironment(ModelEnvironment):
     def evaluate_batch(self, eval_batch, mask, metric):
         shape = self.get_mask_shape()
         with torch.no_grad():
-            outputs = self.model(**eval_batch, head_mask=mask.reshape(shape))
+            if mask == None:
+                outputs = self.model(**eval_batch)
+            else:
+                outputs = self.model(**eval_batch, head_mask=mask.reshape(shape))
         logits = outputs.logits
         predictions = torch.argmax(logits, dim=-1)
         metric.add_batch(predictions=predictions, references=eval_batch["labels"])
