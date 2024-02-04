@@ -80,7 +80,7 @@ This folder contains JSON launch files and python scripts for automatically gene
 To use this repository, you will need to change the following things:
 * Setup SSH keys for any remote server you wish to run an experiment on (password authentication will not work)
 * Create a docker context for each server
-  * Ex to create a context named mms-large-1: `$ docker context create --docker host=ssh://henry@mms-large-1.cs.dartmouth.edu mms-large-1`
+  * Ex to create a context named mms-large-1: `$ docker context create --docker host=ssh://henry@mms-large-1.cs.dartmouth.edu mms-large-1`. NOTE: CREATE THIS CONTEXT ON YOUR MACHINE, NOT ON THE SERVER. The context allows your computer to connect to the server to run docker commands without explicitly sshing, i.e. running `docker ps` on your laptop (after selecting the context as described below) will result in a list of containers on the server, not on your laptop. Docker will handle creating an ssh connection in the background for you. If you prefer not to use docker contexts, they are not required but then you have to explicity ssh in to the server to run commands. 
 * Edit the "contexts" field in each JSON file in groups to contain the correct hostnames and context names
 * Create a HuggingFace access token and add it to the `HF_TOKEN` environment variable
 
